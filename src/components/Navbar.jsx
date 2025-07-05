@@ -16,7 +16,7 @@ const Navbar = () => {
 
   const links = [
     { title: "Home", path: "/" },
-    { title: "About us", path: "/about us" },
+    { title: "About us", path: "/about" },
     { title: "Courses", path: "/courses" },
     { title: "Achievements", path: "/achievements" },
     { title: "Members", path: "/members" },
@@ -43,7 +43,15 @@ const Navbar = () => {
   return (
     <div className="w-full fixed top-0 z-50">
       <div className="w-full bg-white backdrop-blur-md border-b border-[#CBD5E1]">
-        <div className="hidden lg:flex justify-between px-6 md:px-14 py-2 items-center">
+        <motion.div
+          className="hidden lg:flex justify-between px-6 md:px-14 py-2 items-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+            transition: { delay: 0.1, duration: 0.5 },
+          }}
+        >
           <Link to="/" className="flex items-center gap-4">
             <motion.img
               src={syborg_logo}
@@ -53,7 +61,7 @@ const Navbar = () => {
               className="drop-shadow-[0_0_10px_rgba(0,102,255,0.6)]"
               initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              transition={{ duration: 0.9, ease: "easeOut" }}
             />
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--color-primary)] drop-shadow-[2px_2px_2px_rgba(0,0,0,0.4)]">
@@ -108,16 +116,24 @@ const Navbar = () => {
               className="w-20 h-20 object-contain"
             />
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Bottom Panel - NavLinks */}
       <div className="hidden lg:flex w-full bg-[#F8FAFC] border-b border-[#CBD5E1] px-6 md:px-14 py-3 uppercase text-sm">
-        <div className="flex gap-8">
+        <motion.div
+          className="flex gap-8"
+          initial={{ opacity: 0, y: 9 }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+            transition: { delay: 0.1, duration: 0.6 },
+          }}
+        >
           {links.map((link) => (
             <NavLink item={link} key={link.title} className="" />
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* Mobile Nav */}
