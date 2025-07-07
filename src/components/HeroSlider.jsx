@@ -91,8 +91,9 @@ const HeroSlider = () => {
                 alt={slide.title}
               />
 
-              {/* Dark blue overlay with subtle gradient */}
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-950/70 to-blue-900/60 z-10" />
+              {/* Overlays */}
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-950/40 via-blue-950/60 to-blue-950/80 z-10" />
+              <div className="absolute bottom-0 left-0 w-full h-[35%] bg-gradient-to-t from-blue-950/90 to-transparent backdrop-blur-[2px] z-10" />
 
               {/* Text Content */}
               <div className="absolute z-20 text-center px-4 text-white">

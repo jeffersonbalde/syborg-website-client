@@ -42,6 +42,36 @@ const Navbar = () => {
 
   return (
     <div className="w-full fixed top-0 z-50">
+      {/* <div className="w-full flex justify-center">
+        <div className="mt-2 mx-2 px-4 py-2 text-xs text-blue-900 font-medium text-center bg-blue-200/30 backdrop-blur-md border border-blue-300 shadow-md rounded-md max-w-screen-md w-full">
+          This is the official <strong>SYBORG</strong> website — currently in{" "}
+          <strong>beta testing</strong>. You may log in using{" "}
+          <span className="font-semibold">admin@admin.com</span> and password{" "}
+          <span className="font-semibold">password</span>.
+        </div>
+      </div> */}
+
+      {/* <div className="w-full">
+        <div className="w-full bg-blue-200/100 text-blue-900 text-center text-xs font-medium py-2 px-4 backdrop-blur-md shadow-md border-b border-blue-300 rounded-none">
+          This is the official <strong>SYBORG</strong> website — currently in{" "}
+          <strong>beta testing</strong>. You may log in using{" "}
+          <span className="font-semibold">admin@admin.com</span> and password{" "}
+          <span className="font-semibold">password</span>.
+        </div>
+      </div> */}
+
+      <div className="w-full">
+        <div className="w-full bg-blue-200/100 text-blue-900 text-center text-xs font-medium py-2 px-4 lg:px-16 backdrop-blur-md shadow-md border-b border-blue-300 rounded-none">
+          Welcome to the official <strong>SYBORG</strong> website — currently in{" "}
+          <strong>beta testing</strong>. You may log in using{" "}
+          <span className="font-semibold">admin@admin.com</span> and password{" "}
+          <span className="font-semibold">password</span> to explore content
+          management features. Students may register with their{" "}
+          <span className="font-semibold">sccpag.edu.ph</span> email to access
+          QR codes, attendance records, and more.
+        </div>
+      </div>
+
       <div className="w-full bg-white backdrop-blur-md border-b border-[#CBD5E1]">
         <motion.div
           className="hidden lg:flex justify-between px-6 md:px-14 py-2 items-center"
@@ -78,7 +108,7 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Search"
-                className="pl-10 pr-4 py-2 w-72 bg-white/70 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:bg-white placeholder:text-gray-500 transition-all duration-300 group-hover:shadow-md"
+                className="pl-10 pr-4 py-2 w-96 bg-white/70 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:bg-white placeholder:text-gray-500 transition-all duration-300 group-hover:shadow-md"
               />
               <svg
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 group-focus-within:text-[var(--color-primary)]"
