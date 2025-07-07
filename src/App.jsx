@@ -1,28 +1,109 @@
-// App.jsx
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./components/Home";
-import About from "./components/About";
-import Layout from "./layout/Layout";
-import Login from "./components/Login";
-import Register from "./components/Register";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { AuthProvider } from "./context/AuthContext";
+import PrivateRoute from "./routes/auth/PrivateRoute";
 
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import LandingPageNavbar from "./layout/LandingPageNavbar";
+import AdminPageNavbar from "./layout/AdminPageNavbar";
+
+import About from "./pages/landing-page/About";
+import Login from "./pages/landing-page/Login";
+import Register from "./pages/landing-page/Register";
+import LandingPage from "./pages/landing-page/LandingPage";
+import Courses from "./pages/landing-page/Courses";
+import Achievements from "./pages/landing-page/Achievements";
+import Members from "./pages/landing-page/Members";
+import Officers from "./pages/landing-page/Officers";
+import ContactUs from "./pages/landing-page/ContactUs";
+
+import AdminDashboard from "./pages/admins/AdminDashboard";
+import StudentDashboard from "./pages/students/StudentDashboard";
 
 import "animate.css";
+import ShowSlider from "./pages/admins/HeroSlider/ShowSlider";
+import CreateSlider from "./pages/admins/HeroSlider/CreateSlider";
+import AboutUs from "./pages/admins/AboutUs";
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            {/* Public Routes */}
+            <Route element={<LandingPageNavbar />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/achievements" element={<Achievements />} />
+              <Route path="/members" element={<Members />} />
+              <Route path="/officers" element={<Officers />} />
+              <Route path="/contact us" element={<ContactUs />} />
+            </Route>
+
+            <Route
+              path="/admin/dashboard"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <AdminPageNavbar>
+                    <AdminDashboard />
+                  </AdminPageNavbar>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/admin/hero"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <AdminPageNavbar>
+                    <ShowSlider />
+                  </AdminPageNavbar>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/admin/create"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <AdminPageNavbar>
+                    <CreateSlider />
+                  </AdminPageNavbar>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/admin/about us"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <AdminPageNavbar>
+                    <AboutUs />
+                  </AdminPageNavbar>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/student/dashboard"
+              element={
+                <PrivateRoute allowedRoles={["student"]}>
+                  <AdminPageNavbar>
+                    <StudentDashboard />
+                  </AdminPageNavbar>
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+
+      <ToastContainer position="top-center" />
+    </>
   );
 };
 

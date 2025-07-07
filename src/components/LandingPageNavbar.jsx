@@ -32,7 +32,7 @@ const Navbar = () => {
         className={`${
           isActive
             ? "text-[var(--color-primary)] font-bold"
-            : "font-semibold text-gray-800"
+            : "font-semibold text-gray-700"
         } hover:text-[var(--color-primary)] transition-colors`}
       >
         {item.title}

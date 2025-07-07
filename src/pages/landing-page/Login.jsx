@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useForm } from "react-hook-form";
 import {
   HiOutlineMail,
@@ -7,7 +7,10 @@ import {
   HiEyeOff,
 } from "react-icons/hi";
 import { Link } from "react-router-dom";
-import syborg_logo from "../assets/images/syborg_logo.png";
+import syborg_logo from "../../assets/images/syborg_logo.png";
+import { toast } from "react-toastify";
+import { AuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const {
@@ -16,16 +19,65 @@ const Login = () => {
     formState: { errors, isSubmitting },
   } = useForm();
 
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+
+  const { login } = useContext(AuthContext);
+
   const [showPassword, setShowPassword] = useState(false);
   const togglePassword = () => setShowPassword(!showPassword);
 
   const onSubmit = async (data) => {
-    console.log(data);
+    setLoading(true);
+    try {
+      // Get CSRF cookie
+      await fetch(
+        `${import.meta.env.VITE_LARAVEL_API_SANCTUM}/sanctum/csrf-cookie`,
+        {
+          credentials: "include",
+        }
+      );
+
+      // Send login request
+      const res = await fetch(
+        `${import.meta.env.VITE_LARAVEL_API_SANCTUM}/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(data),
+        }
+      );
+
+      const result = await res.json();
+
+      if (!result.status) {
+        toast.error(result.message);
+      } else {
+        login({
+          user: result.user,
+          role: result.role,
+          token: result.token, // Make sure your backend returns this
+        });
+        navigate(
+          result.role === "admin" ? "/admin/dashboard" : "/student/dashboard"
+        );
+      }
+    } catch (error) {
+      toast.error("Login failed. Try again." + error);
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center flex items-center justify-center relative px-4 "
+      className="min-h-screen bg-cover bg-center flex items-center justify-center relative px-4"
       style={{
         backgroundImage: `url('https://u7.uidownload.com/vector/234/182/vector-light-blue-abstract-background-eps.jpg')`,
       }}
@@ -34,7 +86,7 @@ const Login = () => {
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
 
       {/* Login card */}
-      <div className="relative z-10 w-full max-w-md bg-white/80 backdrop-blur-xl p-8 rounded-xl shadow-2xl space-y-6 animate__animated animate__fadeIn">
+      <div className="relative z-10 w-full max-w-md bg-white/100 backdrop-blur-xl p-8 rounded-xl shadow-2xl space-y-6 animate__animated animate__fadeIn">
         <div className="flex flex-col items-center">
           <img src={syborg_logo} alt="SYBORG" className="w-20 h-20 mb-2" />
           <h2 className="text-2xl font-bold text-gray-800">Welcome Back</h2>
@@ -117,7 +169,7 @@ const Login = () => {
             Don’t have an account?
             <Link
               to="/register"
-              className="ml-1 text-blue-600 font-medium hover:underline"
+              className="ml-1 text-blue-600 font-medium hover:underline font-semibold"
             >
               Register here
             </Link>

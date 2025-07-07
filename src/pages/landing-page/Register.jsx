@@ -7,7 +7,7 @@ import {
   HiEye,
   HiEyeOff,
 } from "react-icons/hi";
-import syborg_logo from "../assets/images/syborg_logo.png";
+import syborg_logo from "../../assets/images/syborg_logo.png";
 import Swal from "sweetalert2";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -43,14 +43,14 @@ const Register = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center flex items-center justify-center relative px-4 py-8"
+      className="min-h-screen bg-cover bg-center flex items-center justify-center relative px-4 py-8 "
       style={{
         backgroundImage: `url('https://u7.uidownload.com/vector/234/182/vector-light-blue-abstract-background-eps.jpg')`,
       }}
     >
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
 
-      <div className="relative z-10 w-full max-w-2xl bg-white/80 backdrop-blur-xl p-8 rounded-xl shadow-2xl space-y-6 animate__animated animate__fadeIn">
+      <div className="relative z-10 w-full max-w-2xl bg-white/100 backdrop-blur-xl p-8 rounded-xl shadow-2xl space-y-6 animate__animated animate__fadeIn">
         <div className="flex flex-col items-center">
           <img src={syborg_logo} alt="SYBORG" className="w-20 h-20 mb-2" />
           <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
@@ -66,28 +66,28 @@ const Register = () => {
               autoFocus
               {...register("edp", {
                 required: "EDP Number is required.",
-                pattern: {
-                  value: /^\d{4}-\d{4}$/,
-                  message: "EDP Number must be in numeric format.",
-                },
+                // pattern: {
+                //   value: /^\d{4}-\d{4}$/,
+                //   message: "EDP Number must be in numeric format.",
+                // },
               })}
-              type="text"
+              type="number"
               placeholder="EDP Number"
               className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.edp ? "border-red-500" : "border-gray-300"
               }`}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (/[^0-9-]/.test(val)) {
-                  Swal.fire({
-                    icon: "error",
-                    title: "Invalid Character",
-                    text: "Only numbers and a dash (-) are allowed in the EDP Number.",
-                    confirmButtonColor: "#3b82f6",
-                  });
-                  e.target.value = val.replace(/[^0-9-]/g, "");
-                }
-              }}
+              // onChange={(e) => {
+              //   const val = e.target.value;
+              //   if (/[^0-9-]/.test(val)) {
+              //     Swal.fire({
+              //       icon: "error",
+              //       title: "Invalid Character",
+              //       text: "Only numbers are allowed in the EDP Number.",
+              //       confirmButtonColor: "#3b82f6",
+              //     });
+              //     e.target.value = val.replace(/[^0-9-]/g, "");
+              //   }
+              // }}
             />
             {errors.edp && (
               <p className="text-sm text-red-600 mt-1">{errors.edp.message}</p>
@@ -296,23 +296,23 @@ const Register = () => {
                   message: "Enter a valid PH number (e.g. 09123456789)",
                 },
               })}
-              type="text"
+              type="number"
               placeholder="Contact Number"
               className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.contact ? "border-red-500" : "border-gray-300"
               }`}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (/[^0-9]/.test(val)) {
-                  Swal.fire({
-                    icon: "error",
-                    title: "Invalid Character",
-                    text: "Only numeric values are allowed for Contact Number.",
-                    confirmButtonColor: "#3b82f6",
-                  });
-                  e.target.value = val.replace(/[^0-9]/g, "");
-                }
-              }}
+              // onChange={(e) => {
+              //   const val = e.target.value;
+              //   if (/[^0-9]/.test(val)) {
+              //     Swal.fire({
+              //       icon: "error",
+              //       title: "Invalid Character",
+              //       text: "Only numeric values are allowed for Contact Number.",
+              //       confirmButtonColor: "#3b82f6",
+              //     });
+              //     e.target.value = val.replace(/[^0-9]/g, "");
+              //   }
+              // }}
             />
 
             {errors.contact && (
