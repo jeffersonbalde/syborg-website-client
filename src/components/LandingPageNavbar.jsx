@@ -65,7 +65,7 @@ const Navbar = () => {
           Welcome to the official <strong>SYBORG</strong> website — currently in{" "}
           <strong>beta testing</strong>. You may log in using{" "}
           <span className="font-semibold">admin@admin.com</span> and password{" "}
-          <span className="font-semibold">password</span> to explore content
+          <span className="font-semibold">123456</span> to explore content
           management features. Students may register using their{" "}
           <span className="font-semibold">sccpag.edu.ph</span> email to access
           QR codes, attendance logs, and upcoming events. { " "}
