@@ -66,9 +66,12 @@ const Navbar = () => {
           <strong>beta testing</strong>. You may log in using{" "}
           <span className="font-semibold">admin@admin.com</span> and password{" "}
           <span className="font-semibold">password</span> to explore content
-          management features. Students may register with their{" "}
+          management features. Students may register using their{" "}
           <span className="font-semibold">sccpag.edu.ph</span> email to access
-          QR codes, attendance records, and more.
+          QR codes, attendance logs, and upcoming events. { " "}
+          {/* <br className="hidden md:block" /> */}
+          If you encounter any issues or bugs, please contact the developer{" "}
+          <span className="font-semibold">Jefferson Balde</span> for assistance.
         </div>
       </div>
 
