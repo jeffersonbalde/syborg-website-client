@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { token } from "../../../utils/GetToken";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { useNavigate } from "react-router-dom";
 
 const ImagePlaceholder = () => (
   <div className="relative w-12 h-12 bg-gray-300 rounded overflow-hidden animate-pulse">
@@ -19,6 +20,8 @@ const ShowSlider = () => {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  const navigate = useNavigate();
 
   const fetchHeroSlider = async () => {
     setLoading(true);
@@ -51,8 +54,8 @@ const ShowSlider = () => {
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
-    //   allowOutsideClick: false,
-    //   allowEscapeKey: false,
+      //   allowOutsideClick: false,
+      //   allowEscapeKey: false,
       backdrop: true,
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -137,12 +140,52 @@ const ShowSlider = () => {
               <div className="bg-white shadow rounded-lg p-6 animate-fade-in">
                 <div className="flex justify-between items-center mb-4">
                   <h4 className="text-lg font-semibold">Hero Slider</h4>
-                  <Link
+                  {/* <Link
                     to="/admin/create"
                     className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded transition"
                   >
                     + Create
-                  </Link>
+                  </Link> */}
+
+                  <button
+                    onClick={() => {
+                      if (loading) return;
+
+                      if (heroSlider.length >= 4) {
+                        MySwal.fire({
+                          icon: "warning",
+                          title: "Limit Reached",
+                          text: "You can only add up to 4 hero slider items. Please delete an existing one to proceed.",
+                          confirmButtonColor: "#3085d6",
+                          backdrop: true,
+                          didOpen: () => {
+                            // Swal.showLoading();
+                            document.body.style.overflow = "auto";
+                          },
+                          willClose: () => {
+                            document.body.style.overflow = "";
+                          },
+                        });
+                      } else {
+                        navigate("/admin/create");
+                      }
+                    }}
+                    disabled={loading}
+                    className={`cursor-pointer text-white text-sm px-4 py-2 rounded transition ${
+                      loading
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        {/* <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> */}
+                        Loading...
+                      </div>
+                    ) : (
+                      "+ Create"
+                    )}
+                  </button>
                 </div>
                 <hr className="my-4" />
 
