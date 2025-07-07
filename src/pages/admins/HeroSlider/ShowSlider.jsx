@@ -51,10 +51,20 @@ const ShowSlider = () => {
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
+    //   allowOutsideClick: false,
+    //   allowEscapeKey: false,
+      backdrop: true,
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
+      didOpen: () => {
+        // Swal.showLoading();
+        document.body.style.overflow = "auto";
+      },
+      willClose: () => {
+        document.body.style.overflow = "";
+      },
     });
 
     if (confirmResult.isConfirmed) {
@@ -64,8 +74,13 @@ const ShowSlider = () => {
         title: "Deleting...",
         allowOutsideClick: false,
         allowEscapeKey: false,
+        backdrop: true,
         didOpen: () => {
           Swal.showLoading();
+          document.body.style.overflow = "auto";
+        },
+        willClose: () => {
+          document.body.style.overflow = "";
         },
       });
 

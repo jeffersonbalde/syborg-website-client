@@ -24,6 +24,7 @@ import "animate.css";
 import ShowSlider from "./pages/admins/HeroSlider/ShowSlider";
 import CreateSlider from "./pages/admins/HeroSlider/CreateSlider";
 import AboutUs from "./pages/admins/AboutUs";
+import NotFound from "./NotFound";
 
 const App = () => {
   return (
@@ -98,6 +99,7 @@ const App = () => {
                 </PrivateRoute>
               }
             />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

@@ -84,9 +84,17 @@ const CreateSlider = ({ placeholder }) => {
         title: "Are you sure?",
         text: "Do you want to save this hero slider content?",
         icon: "question",
+        backdrop: true,
         showCancelButton: true,
         confirmButtonText: "Yes, save it!",
         cancelButtonText: "Cancel",
+        didOpen: () => {
+          // Swal.showLoading();
+          document.body.style.overflow = "auto";
+        },
+        willClose: () => {
+          document.body.style.overflow = "";
+        },
       });
 
       if (!confirmResult.isConfirmed) {
@@ -98,7 +106,14 @@ const CreateSlider = ({ placeholder }) => {
         title: "Saving...",
         allowOutsideClick: false,
         allowEscapeKey: false,
-        didOpen: () => Swal.showLoading(),
+        backdrop: true,
+        didOpen: () => {
+          Swal.showLoading();
+          document.body.style.overflow = "auto";
+        },
+        willClose: () => {
+          document.body.style.overflow = "";
+        },
       });
 
       const res = await fetch(

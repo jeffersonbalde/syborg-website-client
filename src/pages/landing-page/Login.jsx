@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useForm } from "react-hook-form";
 import {
   HiOutlineMail,
@@ -6,11 +6,12 @@ import {
   HiEye,
   HiEyeOff,
 } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import syborg_logo from "../../assets/images/syborg_logo.png";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 const Login = () => {
   const {
@@ -20,18 +21,84 @@ const Login = () => {
   } = useForm();
 
   const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(false);
-
+  const MySwal = withReactContent(Swal);
   const { login } = useContext(AuthContext);
 
   const [showPassword, setShowPassword] = useState(false);
   const togglePassword = () => setShowPassword(!showPassword);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      Swal.fire({
+        title: "Authenticating...",
+        text: "Please wait while we verify your session.",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        backdrop: true,
+        didOpen: () => {
+          Swal.showLoading();
+          document.body.style.overflow = "auto";
+        },
+        willClose: () => {
+          document.body.style.overflow = "";
+        },
+      });
+
+      fetch(`${import.meta.env.VITE_LARAVEL_API}/user`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          if (result && result.role) {
+            login({
+              user: result.user,
+              role: result.role,
+              token: token,
+            });
+
+            Swal.close();
+            navigate(
+              result.role === "admin"
+                ? "/admin/dashboard"
+                : "/student/dashboard"
+            );
+          } else {
+            Swal.close();
+            // localStorage.removeItem("token");
+          }
+        })
+        .catch(() => {
+          Swal.close();
+          // localStorage.removeItem("token");
+          toast.error("Session expired. Please login again.");
+        });
+    }
+  }, []);
+
   const onSubmit = async (data) => {
-    setLoading(true);
+    Swal.fire({
+      title: "Logging in...",
+      text: "Please wait while we authenticate you.",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      backdrop: true,
+      didOpen: () => {
+        Swal.showLoading();
+        document.body.style.overflow = "auto";
+      },
+      willClose: () => {
+        document.body.style.overflow = "";
+      },
+    });
+
     try {
-      // Get CSRF cookie
+      // CSRF first (Laravel Sanctum)
       await fetch(
         `${import.meta.env.VITE_LARAVEL_API_SANCTUM}/sanctum/csrf-cookie`,
         {
@@ -39,7 +106,6 @@ const Login = () => {
         }
       );
 
-      // Send login request
       const res = await fetch(
         `${import.meta.env.VITE_LARAVEL_API_SANCTUM}/login`,
         {
@@ -55,23 +121,26 @@ const Login = () => {
 
       const result = await res.json();
 
+      Swal.close();
+
       if (!result.status) {
         toast.error(result.message);
       } else {
         login({
           user: result.user,
           role: result.role,
-          token: result.token, // Make sure your backend returns this
+          token: result.token,
         });
+        localStorage.setItem("token", result.token);
+
         navigate(
           result.role === "admin" ? "/admin/dashboard" : "/student/dashboard"
         );
       }
     } catch (error) {
-      toast.error("Login failed. Try again." + error);
+      Swal.close();
+      toast.error("Login failed. Try again.");
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -169,7 +238,7 @@ const Login = () => {
             Don’t have an account?
             <Link
               to="/register"
-              className="ml-1 text-blue-600 font-medium hover:underline font-semibold"
+              className="ml-1 text-blue-600 hover:underline font-semibold"
             >
               Register here
             </Link>
