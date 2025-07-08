@@ -25,6 +25,7 @@ import ShowSlider from "./pages/admins/HeroSlider/ShowSlider";
 import CreateSlider from "./pages/admins/HeroSlider/CreateSlider";
 import AboutUs from "./pages/admins/AboutUs";
 import NotFound from "./NotFound";
+import ShowStudents from "./pages/admins/Students/ShowStudents";
 
 const App = () => {
   return (
@@ -68,11 +69,22 @@ const App = () => {
             />
 
             <Route
-              path="/admin/create"
+              path="/admin/create-hero-slider"
               element={
                 <PrivateRoute allowedRoles={["admin"]}>
                   <AdminPageNavbar>
                     <CreateSlider />
+                  </AdminPageNavbar>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/admin/students"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <AdminPageNavbar>
+                    <ShowStudents />
                   </AdminPageNavbar>
                 </PrivateRoute>
               }

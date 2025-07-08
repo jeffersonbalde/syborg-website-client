@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from "../../../components/AdminSidebar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { toast } from "react-toastify";
 import { token } from "../../../utils/GetToken";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useNavigate } from "react-router-dom";
+import "animate.css";
 
 const ImagePlaceholder = () => (
   <div className="relative w-12 h-12 bg-gray-300 rounded overflow-hidden animate-pulse">
@@ -22,6 +22,7 @@ const ShowSlider = () => {
   const [imgLoaded, setImgLoaded] = useState(false);
 
   const navigate = useNavigate();
+  const MySwal = withReactContent(Swal);
 
   const fetchHeroSlider = async () => {
     setLoading(true);
@@ -37,11 +38,10 @@ const ShowSlider = () => {
           },
         }
       );
-
       const result = await res.json();
       setHeroSlider(result.data);
     } catch (error) {
-      console.error("Error fetching services:", error);
+      console.error("Error fetching sliders:", error);
     } finally {
       setLoading(false);
     }
@@ -54,39 +54,15 @@ const ShowSlider = () => {
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
-      //   allowOutsideClick: false,
-      //   allowEscapeKey: false,
-      backdrop: true,
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-      didOpen: () => {
-        // Swal.showLoading();
-        document.body.style.overflow = "auto";
-      },
-      willClose: () => {
-        document.body.style.overflow = "";
-      },
     });
 
     if (confirmResult.isConfirmed) {
       setDeleting(true);
-
-      Swal.fire({
-        title: "Deleting...",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        backdrop: true,
-        didOpen: () => {
-          Swal.showLoading();
-          document.body.style.overflow = "auto";
-        },
-        willClose: () => {
-          document.body.style.overflow = "";
-        },
-      });
-
+      Swal.fire({ title: "Deleting...", allowOutsideClick: false });
       try {
         const res = await fetch(
           `${import.meta.env.VITE_LARAVEL_API}/heroslider/${id}`,
@@ -122,31 +98,35 @@ const ShowSlider = () => {
     fetchHeroSlider();
   }, []);
 
-  const MySwal = withReactContent(Swal);
-
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+      {/* Header */}
+      <header className="bg-sky-600 text-white shadow-md py-5 animate__animated animate__fadeInDown">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-wide">
+            SYBORG Portal
+          </h1>
+          <span className="text-sm italic opacity-80 hidden md:block">
+            Manage your homepage sliders here.
+          </span>
+        </div>
+      </header>
+
       <main className="px-4 py-8 md:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Sidebar */}
-            <div className="md:w-1/4">
-              <h1>Admin Dashboard</h1>
+            <div className="md:w-1/4 animate__animated animate__fadeInLeft">
               <AdminSidebar />
             </div>
 
             {/* Dashboard Content */}
-            <div className="md:w-3/4 w-full">
-              <div className="bg-white shadow rounded-lg p-6 animate-fade-in">
+            <div className="md:w-3/4 w-full animate__animated animate__fadeInUp">
+              <div className="bg-white shadow rounded-lg p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-lg font-semibold">Hero Slider</h4>
-                  {/* <Link
-                    to="/admin/create"
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded transition"
-                  >
-                    + Create
-                  </Link> */}
-
+                  <h4 className="text-lg font-semibold text-sky-700">
+                    Hero Slider Contents
+                  </h4>
                   <button
                     onClick={() => {
                       if (loading) return;
@@ -157,17 +137,9 @@ const ShowSlider = () => {
                           title: "Limit Reached",
                           text: "You can only add up to 4 hero slider items. Please delete an existing one to proceed.",
                           confirmButtonColor: "#3085d6",
-                          backdrop: true,
-                          didOpen: () => {
-                            // Swal.showLoading();
-                            document.body.style.overflow = "auto";
-                          },
-                          willClose: () => {
-                            document.body.style.overflow = "";
-                          },
                         });
                       } else {
-                        navigate("/admin/create");
+                        navigate("/admin/create-hero-slider");
                       }
                     }}
                     disabled={loading}
@@ -177,16 +149,10 @@ const ShowSlider = () => {
                         : "bg-blue-600 hover:bg-blue-700"
                     }`}
                   >
-                    {loading ? (
-                      <div className="flex items-center gap-2">
-                        {/* <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> */}
-                        Loading...
-                      </div>
-                    ) : (
-                      "+ Create"
-                    )}
+                    {loading ? "Loading..." : "+ Create"}
                   </button>
                 </div>
+
                 <hr className="my-4" />
 
                 <div className="overflow-x-auto">
@@ -198,14 +164,13 @@ const ShowSlider = () => {
                         <th className="px-4 py-2 text-left">Title</th>
                         <th className="px-4 py-2 text-left">Description</th>
                         <th className="px-4 py-2 text-left">Content</th>
-                        <th className="px-4 py-2 text-left">Action</th>
+                        <th className="px-4 py-2 text-center">Action</th>
                       </tr>
                     </thead>
-
                     <tbody>
                       {loading ? (
                         <tr>
-                          <td colSpan="5" className="py-10 text-center">
+                          <td colSpan="6" className="py-10 text-center">
                             <div className="flex flex-col items-center">
                               <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
                               <p className="text-gray-500 font-semibold">
@@ -216,14 +181,14 @@ const ShowSlider = () => {
                         </tr>
                       ) : heroSlider.length === 0 ? (
                         <tr>
-                          <td colSpan="5" className="text-center py-5">
+                          <td colSpan="6" className="text-center py-5">
                             No hero slider content found.
                           </td>
                         </tr>
                       ) : (
                         heroSlider.map((heroslider) => (
                           <tr
-                            key={`service-${heroslider.id}`}
+                            key={`slider-${heroslider.id}`}
                             className="border-b hover:bg-gray-50"
                           >
                             <td className="px-4 py-2">{heroslider.id}</td>
@@ -252,28 +217,16 @@ const ShowSlider = () => {
                                 </div>
                               )}
                             </td>
-
                             <td className="px-4 py-2">{heroslider.title}</td>
                             <td className="px-4 py-2">
                               {heroslider.description}
                             </td>
                             <td className="px-4 py-2">{heroslider.content}</td>
-                            {/* <td className="px-4 py-2">
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                  service.status == 1
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
-                                }`}
-                              >
-                                {service.status == 1 ? "Active" : "Inactive"}
-                              </span>
-                            </td> */}
-                            <td className="px-4 py-2">
-                              <div className="flex gap-2">
+                            <td className="px-4 py-2 text-center">
+                              <div className="flex gap-2 justify-center">
                                 <Link
-                                  //   to={`/admin/services/edit/${service.id}`}
-                                  className="text-blue-600 hover:text-blue-800 text-sm font-medium border border-blue-500 px-3 py-1 rounded-md transition"
+                                  // to={`/admin/edit-hero-slider/${heroslider.id}`}
+                                  className="text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-500 px-3 py-1 rounded-md text-sm transition"
                                 >
                                   Edit
                                 </Link>
@@ -281,7 +234,7 @@ const ShowSlider = () => {
                                   onClick={() =>
                                     deleteHeroSlider(heroslider.id)
                                   }
-                                  className="cursor-pointer text-red-600 hover:text-red-800 text-sm font-medium border border-red-500 px-3 py-1 rounded-md transition"
+                                  className="text-red-600 hover:text-white hover:bg-red-600 border border-red-500 px-3 py-1 rounded-md text-sm transition cursor-pointer"
                                 >
                                   Delete
                                 </button>

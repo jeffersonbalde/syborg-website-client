@@ -91,6 +91,20 @@ const AdminSidebar = () => {
             Hero Slider
           </Link>
         </li>
+
+        <li>
+          <Link
+            to="/admin/students"
+            className={`${
+              location.pathname === "/admin/students"
+                ? "text-[var(--color-primary)] font-bold"
+                : "font-semibold text-gray-800"
+            } hover:text-[var(--color-primary)] transition-colors`}
+          >
+            Registered Students
+          </Link>
+        </li>
+
         <li>
           <Link
             to="/admin/about us"

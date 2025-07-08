@@ -19,6 +19,8 @@ const CreateSlider = ({ placeholder }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [imageId, setImageID] = useState(null);
 
+  const titleRef = useRef(null);
+
   const config = useMemo(
     () => ({
       readonly: false,
@@ -32,6 +34,7 @@ const CreateSlider = ({ placeholder }) => {
     handleSubmit,
     watch,
     trigger,
+    setFocus,
     formState: { errors },
     setError,
     clearErrors,
@@ -40,6 +43,16 @@ const CreateSlider = ({ placeholder }) => {
   const editor = useRef(null);
   const [content, setContent] = useState("");
   const imageFile = watch("image");
+
+  useEffect(() => {
+    
+    const scrollTimer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      setFocus("title");
+    }, 500); 
+
+    return () => clearTimeout(scrollTimer);
+  }, [setFocus]);
 
   const navigate = useNavigate();
 
@@ -244,21 +257,32 @@ const CreateSlider = ({ placeholder }) => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+      {/* Header */}
+      <header className="bg-sky-600 text-white shadow-md py-5 animate__animated animate__fadeInDown">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-wide">
+            Admin Portal
+          </h1>
+          <span className="text-sm italic opacity-80 hidden md:block">
+            Create a new hero slider banner
+          </span>
+        </div>
+      </header>
+
       <main className="px-4 py-8 md:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Sidebar */}
-            <div className="md:w-1/4">
-              <h1>Admin Dashboard</h1>
+            <div className="md:w-1/4 animate__animated animate__fadeInLeft">
               <AdminSidebar />
             </div>
 
-            {/* Dashboard Content */}
-            <div className="md:w-3/4 w-full">
-              <div className="bg-white shadow rounded-lg p-6 animate-fade-in">
+            {/* Main Form Content */}
+            <div className="md:w-3/4 w-full animate__animated animate__fadeInUp">
+              <div className="bg-white shadow rounded-lg p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-lg font-semibold">
+                  <h4 className="text-lg font-semibold text-sky-700">
                     Hero Slider / Create
                   </h4>
                   <Link
@@ -268,6 +292,7 @@ const CreateSlider = ({ placeholder }) => {
                     Back
                   </Link>
                 </div>
+
                 <hr className="my-4" />
 
                 <form
@@ -288,7 +313,8 @@ const CreateSlider = ({ placeholder }) => {
                       {...register("title", {
                         required: "The title field is required.",
                       })}
-                      autoFocus
+                      // autoFocus
+                      // ref={titleRef}
                       id="title"
                       type="text"
                       className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
@@ -327,7 +353,7 @@ const CreateSlider = ({ placeholder }) => {
                     />
                     {errors.description && (
                       <p className="text-sm text-red-600 mt-1">
-                        {errors.title?.message}
+                        {errors.description?.message}
                       </p>
                     )}
                   </div>
