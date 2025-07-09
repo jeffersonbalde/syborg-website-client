@@ -311,7 +311,7 @@ const ShowSlider = () => {
                         {loading ? (
                           <tr>
                             <td colSpan="6" className="px-6 py-12 text-center">
-                              <div className="flex flex-col items-center justify-center">
+                              {/* <div className="flex flex-col items-center justify-center">
                                 <div
                                   className="w-12 h-12 border-4 rounded-full animate-spin mb-4"
                                   style={{
@@ -321,6 +321,16 @@ const ShowSlider = () => {
                                 ></div>
                                 <p className="text-gray-600 font-medium">
                                   Fetching hero slider, please wait...
+                                </p>
+                              </div> */}
+
+                              <div className="flex flex-col items-center justify-center">
+                                <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                <p className="text-gray-600 font-medium">
+                                  Loading hero slider data...
+                                </p>
+                                <p className="text-sm text-gray-500 mt-1">
+                                  Please wait while we fetch the records
                                 </p>
                               </div>
                             </td>
