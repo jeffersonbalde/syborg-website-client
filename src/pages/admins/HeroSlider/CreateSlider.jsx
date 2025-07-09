@@ -6,11 +6,19 @@ import JoditEditor from "jodit-react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { token } from "../../../utils/GetToken";
+import "animate.css";
 
-const stripHtml = (html) => {
-  const tmp = document.createElement("DIV");
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || "";
+const colors = {
+  primary: "#D30203",
+  dark: "#151515",
+  lightBg: "#F5F5F5",
+  text: "#333333",
+  lightText: "#777777",
+  border: "#E0E0E0",
+  success: "#28A745",
+  warning: "#FFC107",
+  danger: "#DC3545",
+  info: "#17A2B8",
 };
 
 const CreateSlider = ({ placeholder }) => {
@@ -45,16 +53,31 @@ const CreateSlider = ({ placeholder }) => {
   const imageFile = watch("image");
 
   useEffect(() => {
-    
     const scrollTimer = setTimeout(() => {
       window.scrollTo({ top: 0, behavior: "instant" });
       setFocus("title");
-    }, 500); 
+    }, 500);
 
     return () => clearTimeout(scrollTimer);
   }, [setFocus]);
 
   const navigate = useNavigate();
+
+  const getCustomSwal = () => {
+    return Swal.mixin({
+      background: colors.lightBg,
+      color: colors.text,
+      confirmButtonColor: colors.primary,
+      cancelButtonColor: colors.lightText,
+      customClass: {
+        confirmButton: "custom-confirm-btn",
+        cancelButton: "custom-cancel-btn",
+        title: "custom-title",
+        content: "custom-content",
+        popup: "custom-popup",
+      },
+    });
+  };
 
   const onSubmit = async (data) => {
     let hasError = false;
@@ -93,14 +116,22 @@ const CreateSlider = ({ placeholder }) => {
     if (imageId) formData.append("imageId", imageId);
 
     try {
-      const confirmResult = await Swal.fire({
+      const MySwal = getCustomSwal();
+      const confirmResult = await MySwal.fire({
         title: "Are you sure?",
         text: "Do you want to save this hero slider content?",
         icon: "question",
-        backdrop: true,
         showCancelButton: true,
         confirmButtonText: "Yes, save it!",
         cancelButtonText: "Cancel",
+        iconColor: colors.info,
+        backdrop: true,
+        backdrop: `
+      rgba(0,0,0,0.7)
+      url("/images/loading.gif")
+      center top
+      no-repeat
+    `,
         didOpen: () => {
           // Swal.showLoading();
           document.body.style.overflow = "auto";
@@ -115,10 +146,12 @@ const CreateSlider = ({ placeholder }) => {
         return;
       }
 
-      Swal.fire({
+      MySwal.fire({
         title: "Saving...",
         allowOutsideClick: false,
+        showConfirmButton: false,
         allowEscapeKey: false,
+        // willOpen: () => Swal.showLoading(),
         backdrop: true,
         didOpen: () => {
           Swal.showLoading();
@@ -154,13 +187,13 @@ const CreateSlider = ({ placeholder }) => {
             toast.error(`${field}: ${messages[0]}`);
           });
         } else {
-          toast.error(result.message || "Something went wrong.");
+          toast.error(result.message || "Failed to save slider.");
         }
       }
     } catch (error) {
       Swal.close();
       setLoading(false);
-      toast.error("An error occurred. Please try again.");
+      toast.error("Error occurred while saving slider.");
       console.error(error);
     }
   };
@@ -229,15 +262,6 @@ const CreateSlider = ({ placeholder }) => {
       );
 
       const result = await res.json();
-      console.log("Upload response (raw):", result);
-
-      // if (result.status === false) {
-      //   toast.error(result.errors.image[0]);
-      //   setPreviewUrl(null);
-      // } else {
-      //   // toast.success("Image uploaded successfully.");
-      //   setImageID(result.data.id);
-      // }
 
       if (result.status === true && result.data && result.data.id) {
         setImageID(result.data.id);
@@ -256,15 +280,27 @@ const CreateSlider = ({ placeholder }) => {
     }
   };
 
+  const stripHtml = (html) => {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen" style={{ backgroundColor: colors.lightBg }}>
       {/* Header */}
-      <header className="bg-sky-600 text-white shadow-md py-5 animate__animated animate__fadeInDown">
+      <header
+        className="shadow-md py-5"
+        style={{ backgroundColor: colors.dark }}
+      >
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-wide">
-            Admin Portal
+          <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-white">
+            SYBORG Portal
           </h1>
-          <span className="text-sm italic opacity-80 hidden md:block">
+          <span
+            className="text-sm italic hidden md:block"
+            style={{ color: "rgba(255,255,255,0.7)" }}
+          >
             Create a new hero slider banner
           </span>
         </div>
@@ -274,238 +310,318 @@ const CreateSlider = ({ placeholder }) => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Sidebar */}
-            <div className="md:w-1/4 animate__animated animate__fadeInLeft">
+            <div className="md:w-1/4">
               <AdminSidebar />
             </div>
 
             {/* Main Form Content */}
-            <div className="md:w-3/4 w-full animate__animated animate__fadeInUp">
-              <div className="bg-white shadow rounded-lg p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-lg font-semibold text-sky-700">
-                    Hero Slider / Create
-                  </h4>
-                  <Link
-                    to="/admin/hero"
-                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded transition"
-                  >
-                    Back
-                  </Link>
-                </div>
-
-                <hr className="my-4" />
-
-                <form
-                  onSubmit={handleSubmit(onSubmit, onInvalid)}
-                  className={`${
-                    loading ? "pointer-events-none opacity-50" : ""
-                  }`}
-                >
-                  {/* Title */}
-                  <div className="mb-4">
-                    <label
-                      htmlFor="title"
-                      className="cursor-pointer block text-sm font-medium mb-1"
+            <div className="md:w-3/4 w-full animate__animated animate__fadeIn">
+              <div
+                className="shadow-lg rounded-xl overflow-hidden"
+                style={{
+                  backgroundColor: "white",
+                  border: `1px solid ${colors.border}`,
+                }}
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h4
+                      className="text-xl font-bold"
+                      style={{ color: colors.primary }}
                     >
-                      Title *
-                    </label>
-                    <input
-                      {...register("title", {
-                        required: "The title field is required.",
-                      })}
-                      // autoFocus
-                      // ref={titleRef}
-                      id="title"
-                      type="text"
-                      className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
-                        errors.title
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-blue-500"
-                      }`}
-                      placeholder="Title"
-                    />
-                    {errors.title && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {errors.title?.message}
-                      </p>
-                    )}
-                  </div>
-                  {/* Description */}
-                  <div className="mb-4">
-                    <label
-                      className="cursor-pointer block text-sm font-medium mb-1"
-                      htmlFor="description"
-                    >
-                      Description *
-                    </label>
-                    <input
-                      {...register("description", {
-                        required: "The description field is required.",
-                      })}
-                      id="description"
-                      type="text"
-                      className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
-                        errors.description
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 focus:ring-blue-500"
-                      }`}
-                      placeholder="Description"
-                    />
-                    {errors.description && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {errors.description?.message}
-                      </p>
-                    )}
-                  </div>
-                  {/* Content */}
-                  <div className="mb-4">
-                    <label
-                      htmlFor="content"
-                      className="block text-sm font-medium mb-1"
-                    >
-                      Content *
-                    </label>
-                    <JoditEditor
-                      id="content"
-                      ref={editor}
-                      value={content}
-                      config={config}
-                      tabIndex={1}
-                      onChange={(newContent) => {
-                        setContent(newContent);
-                        const plainText = stripHtml(newContent);
-                        if (plainText.trim() !== "") {
-                          clearErrors("content");
-                        }
-                      }}
-                    />
-
-                    {errors.content && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {errors.content.message}
-                      </p>
-                    )}
-                  </div>
-                  {/* Image */}
-                  <div className="mb-4">
-                    <label
-                      htmlFor="image"
-                      className="block text-sm font-medium mb-1 text-gray-700"
-                    >
-                      Image *
-                    </label>
-
-                    <div
-                      className={`relative border-2 border-dashed rounded-lg text-center transition-all hover:border-blue-400 hover:bg-blue-50 ${
-                        errors.image ? "border-red-500" : "border-gray-300"
-                      }`}
-                      style={{
-                        width: "250px",
-                        height: "250px",
-                        position: "relative",
-                        overflow: "hidden",
-                      }}
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        const droppedFile = e.dataTransfer.files[0];
-                        if (droppedFile) {
-                          const fileInput = document.getElementById("image");
-                          const dataTransfer = new DataTransfer();
-                          dataTransfer.items.add(droppedFile);
-                          fileInput.files = dataTransfer.files;
-                          fileInput.dispatchEvent(
-                            new Event("change", { bubbles: true })
+                      Create Hero Slider
+                    </h4>
+                    <Link
+                      to={loading || imageLoading ? "#" : "/admin/hero"}
+                      onClick={(e) => {
+                        if (loading || imageLoading) {
+                          e.preventDefault();
+                          toast.info(
+                            "Please wait until the process completes."
                           );
                         }
                       }}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow ${
+                        loading || imageLoading
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-white text-primary border border-primary hover:bg-gray-300"
+                      }`}
                     >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                        />
+                      </svg>
+                      Back
+                    </Link>
+                  </div>
+
+                  <hr className="my-4" style={{ borderColor: colors.border }} />
+
+                  <form
+                    onSubmit={handleSubmit(onSubmit, onInvalid)}
+                    className={`${
+                      loading || imageLoading
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }`}
+                  >
+                    {/* Title */}
+                    <div className="mb-4">
+                      <label
+                        htmlFor="title"
+                        className="cursor-pointer block text-sm font-medium mb-1"
+                        style={{ color: colors.text }}
+                      >
+                        Title *
+                      </label>
                       <input
-                        id="image"
-                        type="file"
-                        accept="image/png, image/jpeg, image/jpg, image/gif"
-                        {...register("image", {
-                          onChange: handleFile,
+                        {...register("title", {
+                          required: "The title field is required.",
                         })}
-                        className={`absolute inset-0 opacity-0 w-full h-full z-10 ${
-                          imageLoading ? "cursor-not-allowed" : "cursor-pointer"
+                        id="title"
+                        type="text"
+                        className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+                          errors.title
+                            ? "border-red-500 focus:ring-red-500"
+                            : `border-gray-300 focus:ring-${colors.primary}`
                         }`}
-                        disabled={imageLoading}
+                        placeholder="Title"
+                        style={{
+                          borderColor: errors.title
+                            ? colors.danger
+                            : colors.border,
+                          focusRing: colors.primary,
+                        }}
+                      />
+                      {errors.title && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {errors.title?.message}
+                        </p>
+                      )}
+                    </div>
+                    {/* Description */}
+                    <div className="mb-4">
+                      <label
+                        className="cursor-pointer block text-sm font-medium mb-1"
+                        htmlFor="description"
+                        style={{ color: colors.text }}
+                      >
+                        Description *
+                      </label>
+                      <input
+                        {...register("description", {
+                          required: "The description field is required.",
+                        })}
+                        id="description"
+                        type="text"
+                        className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+                          errors.description
+                            ? "border-red-500 focus:ring-red-500"
+                            : `border-gray-300 focus:ring-${colors.primary}`
+                        }`}
+                        placeholder="Description"
+                        style={{
+                          borderColor: errors.description
+                            ? colors.danger
+                            : colors.border,
+                          focusRing: colors.primary,
+                        }}
+                      />
+                      {errors.description && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {errors.description?.message}
+                        </p>
+                      )}
+                    </div>
+                    {/* Content */}
+                    <div className="mb-4">
+                      <label
+                        htmlFor="content"
+                        className="block text-sm font-medium mb-1"
+                        style={{ color: colors.text }}
+                      >
+                        Content *
+                      </label>
+                      <JoditEditor
+                        id="content"
+                        ref={editor}
+                        value={content}
+                        config={config}
+                        tabIndex={1}
+                        onChange={(newContent) => {
+                          setContent(newContent);
+                          const plainText = stripHtml(newContent);
+                          if (plainText.trim() !== "") {
+                            clearErrors("content");
+                          }
+                        }}
                       />
 
-                      <div className="flex flex-col items-center justify-center text-gray-500 w-full h-full p-4 z-0">
-                        {imageFile && imageFile.length > 0 ? (
-                          <img
-                            src={URL.createObjectURL(imageFile[0])}
-                            alt="Preview"
-                            className="object-cover w-full h-full rounded-lg"
-                          />
-                        ) : (
-                          <>
-                            <svg
-                              className="w-10 h-10 mb-2 text-blue-400"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={2}
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M3 16l4-4a3 3 0 014 0l4 4M13 12l4-4a3 3 0 014 0l1 1m-6 13H6a2 2 0 01-2-2V5a2 2 0 012-2h9a2 2 0 012 2v1"
-                              />
-                            </svg>
-                            <p className="text-sm">
-                              Click or drag file to upload <br />
-                              <span className="text-xs text-gray-400">
-                                (JPG, PNG, or GIF)
-                              </span>
-                            </p>
-                          </>
-                        )}
-                      </div>
+                      {errors.content && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {errors.content.message}
+                        </p>
+                      )}
                     </div>
+                    {/* Image */}
+                    <div className="mb-6">
+                      <label
+                        htmlFor="image"
+                        className="block text-sm font-medium mb-1"
+                        style={{ color: colors.text }}
+                      >
+                        Image *
+                      </label>
 
-                    {errors.image && (
-                      <p className="text-sm text-red-600 mt-2">
-                        {errors.image.message}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-semibold flex items-center gap-2 disabled:opacity-60 cursor-pointer"
-                    disabled={loading || imageLoading}
-                  >
-                    {loading || imageLoading ? (
-                      <>
-                        <svg
-                          className="animate-spin h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
+                      <div
+                        className={`hover:bg-red-100 relative border-2 border-dashed rounded-lg text-center transition-all hover:border-${
+                          colors.primary
+                        } hover:bg-${colors.primary}10 ${
+                          errors.image
+                            ? "border-red-500"
+                            : `border-${colors.border}` 
+                        }`}
+                        style={{
+                          width: "250px",
+                          height: "250px",
+                          position: "relative",
+                          overflow: "hidden",
+                          borderColor: errors.image
+                            ? colors.danger
+                            : colors.border,
+                        }}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const droppedFile = e.dataTransfer.files[0];
+                          if (droppedFile) {
+                            const fileInput = document.getElementById("image");
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(droppedFile);
+                            fileInput.files = dataTransfer.files;
+                            fileInput.dispatchEvent(
+                              new Event("change", { bubbles: true })
+                            );
+                          }
+                        }}
+                      >
+                        <input
+                          id="image"
+                          type="file"
+                          accept="image/png, image/jpeg, image/jpg, image/gif"
+                          {...register("image", {
+                            onChange: handleFile,
+                          })}
+                          className={`absolute inset-0 opacity-0 w-full h-full z-10 ${
+                            imageLoading
+                              ? "cursor-not-allowed"
+                              : "cursor-pointer"
+                          }`}
+                          disabled={imageLoading}
+                        />
+
+                        <div
+                          className="flex flex-col items-center justify-center w-full h-full p-4 z-0"
+                          style={{ color: colors.lightText }}
                         >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8v8H4z"
-                          ></path>
-                        </svg>
-                        {imageLoading ? "Uploading Image..." : "Submitting..."}
-                      </>
-                    ) : (
-                      "Submit"
-                    )}
-                  </button>
-                </form>
+                          {imageFile && imageFile.length > 0 ? (
+                            <img
+                              src={URL.createObjectURL(imageFile[0])}
+                              alt="Preview"
+                              className="object-cover w-full h-full rounded-lg"
+                            />
+                          ) : (
+                            <>
+                              <svg
+                                className="w-10 h-10 mb-2"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                viewBox="0 0 24 24"
+                                style={{ color: colors.primary }}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M3 16l4-4a3 3 0 014 0l4 4M13 12l4-4a3 3 0 014 0l1 1m-6 13H6a2 2 0 01-2-2V5a2 2 0 012-2h9a2 2 0 012 2v1"
+                                />
+                              </svg>
+                              <p className="text-sm">
+                                Click or drag file to upload <br />
+                                <span
+                                  className="text-xs"
+                                  style={{ color: colors.lightText }}
+                                >
+                                  (JPG, PNG, or GIF)
+                                </span>
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {errors.image && (
+                        <p className="text-sm text-red-600 mt-2">
+                          {errors.image.message}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="submit"
+                      className={`px-6 py-2 rounded-md text-sm font-semibold flex items-center gap-2 transition-colors ${
+                        loading || imageLoading
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : `bg-${colors.primary} transition-all duration-300 shadow hover:brightness-90 text-white cursor-pointer`
+                      }`}
+                      disabled={loading || imageLoading}
+                      style={{
+                        backgroundColor:
+                          loading || imageLoading
+                            ? colors.border
+                            : colors.primary,
+                      }}
+                    >
+                      {loading || imageLoading ? (
+                        <>
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v8H4z"
+                            ></path>
+                          </svg>
+                          {imageLoading
+                            ? "Uploading Image..."
+                            : "Submitting..."}
+                        </>
+                      ) : (
+                        "Submit"
+                      )}
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>

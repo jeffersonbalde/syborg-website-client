@@ -10,46 +10,11 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 
-const colors = {
-  primary: "#D30203",
-  dark: "#151515",
-  lightBg: "#F5F5F5",
-  text: "#333333",
-  lightText: "#777777",
-  border: "#E0E0E0",
-  success: "#28A745",
-  warning: "#FFC107",
-  danger: "#DC3545",
-  info: "#17A2B8",
-};
-
 const ImagePlaceholder = () => (
   <div className="relative w-12 h-12 bg-gray-300 rounded overflow-hidden animate-pulse">
     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer" />
   </div>
 );
-
-const getCustomSwal = () => {
-  return withReactContent(Swal).mixin({
-    background: colors.lightBg,
-    color: colors.text,
-    confirmButtonColor: colors.primary,
-    cancelButtonColor: colors.lightText,
-    backdrop: `
-      rgba(0,0,0,0.7)
-      url("/images/loading.gif")
-      center top
-      no-repeat
-    `,
-    customClass: {
-      confirmButton: "custom-confirm-btn",
-      cancelButton: "custom-cancel-btn",
-      title: "custom-title",
-      content: "custom-content",
-      popup: "custom-popup",
-    },
-  });
-};
 
 const ShowStudents = () => {
   const [students, setStudents] = useState([]);
@@ -127,16 +92,6 @@ const ShowStudents = () => {
       confirmButtonText: "Yes, approve",
       cancelButtonText: "Cancel",
       backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
-      backdrop: `
-      rgba(0,0,0,0.7)
-      url("/images/loading.gif")
-      center top
-      no-repeat
-    `,
       didOpen: () => {
         document.body.style.overflow = "auto";
       },
@@ -152,16 +107,6 @@ const ShowStudents = () => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
-      backdrop: `
-      rgba(0,0,0,0.7)
-      url("/images/loading.gif")
-      center top
-      no-repeat
-    `,
       didOpen: () => {
         Swal.showLoading();
         document.body.style.overflow = "auto";
@@ -220,16 +165,6 @@ const ShowStudents = () => {
       confirmButtonText: "Yes, disapprove",
       cancelButtonText: "Cancel",
       backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
-      backdrop: `
-      rgba(0,0,0,0.7)
-      url("/images/loading.gif")
-      center top
-      no-repeat
-    `,
       didOpen: () => {
         document.body.style.overflow = "auto";
       },
@@ -245,16 +180,6 @@ const ShowStudents = () => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
-      backdrop: `
-      rgba(0,0,0,0.7)
-      url("/images/loading.gif")
-      center top
-      no-repeat
-    `,
       didOpen: () => {
         Swal.showLoading();
         document.body.style.overflow = "auto";
@@ -298,16 +223,7 @@ const ShowStudents = () => {
       //   text: "You have been logged out successfully.",
       //   icon: "success",
       backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
-      backdrop: `
-      rgba(0,0,0,0.7)
-      url("/images/loading.gif")
-      center top
-      no-repeat
-    `,
+      confirmButtonColor: "#3085d6",
       didOpen: () => {
         // Swal.showLoading();
         document.body.style.overflow = "auto";
@@ -402,20 +318,14 @@ const ShowStudents = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.lightBg }}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       {/* Header */}
-      <header
-        className="shadow-md py-5 "
-        style={{ backgroundColor: colors.dark }}
-      >
+      <header className="bg-sky-600 text-white shadow-md py-5 animate__animated animate__fadeInDown">
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-white">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-wide">
             SYBORG Portal
           </h1>
-          <span
-            className="text-lg italic hidden md:block"
-            style={{ color: "rgba(255,255,255,0.7)" }}
-          >
+          <span className="text-sm italic opacity-80 hidden md:block">
             View all registered students here.
           </span>
         </div>
@@ -425,47 +335,29 @@ const ShowStudents = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Sidebar */}
-            <div className="md:w-1/4 ">
+            <div className="md:w-1/4 animate__animated animate__fadeInLeft">
               <AdminSidebar />
             </div>
 
             {/* Main Content */}
-            <div className="md:w-3/4 w-full animate__animated animate__fadeIn">
-              <div
-                className="shadow-lg rounded-xl overflow-hidden"
-                style={{
-                  backgroundColor: "white",
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
+            <div className="md:w-3/4 w-full animate__animated animate__fadeInUp">
+              <div className="bg-white shadow-lg rounded-xl overflow-hidden">
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-6">
-                    <h4
-                      className="text-xl font-bold"
-                      style={{ color: colors.primary }}
-                    >
+                    <h4 className="text-xl font-bold text-sky-800">
                       Registered Students List
                     </h4>
                   </div>
 
                   {/* Count Display */}
-                  <div
-                    className="rounded-xl p-5 mb-6 shadow-sm"
-                    style={{
-                      backgroundColor: "#F9F9F9",
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  >
+                  <div className="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-100 rounded-xl p-5 mb-6 shadow-sm">
                     <div className="flex flex-wrap justify-between items-center gap-4">
                       <div className="flex items-center">
-                        <div
-                          className="p-3 rounded-xl mr-4 shadow-inner"
-                          style={{ backgroundColor: `${colors.primary}20` }}
-                        >
+                        <div className="bg-blue-100 p-3 rounded-xl mr-4 shadow-inner">
                           <svg
-                            className="w-6 h-6"
+                            className="w-6 h-6 text-blue-600"
                             fill="none"
-                            stroke={colors.primary}
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
                             <path
@@ -477,30 +369,21 @@ const ShowStudents = () => {
                           </svg>
                         </div>
                         <div>
-                          <h3
-                            className="text-lg font-semibold"
-                            style={{ color: colors.lightText }}
-                          >
+                          <h3 className="text-sm font-medium text-gray-600">
                             Total Students
                           </h3>
-                          <p
-                            className="text-4xl font-bold"
-                            style={{ color: colors.dark }}
-                          >
+                          <p className="text-2xl font-bold text-gray-800">
                             {totalCount}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center">
-                        <div
-                          className="p-3 rounded-xl mr-4 shadow-inner"
-                          style={{ backgroundColor: `${colors.primary}20` }}
-                        >
+                        <div className="bg-green-100 p-3 rounded-xl mr-4 shadow-inner">
                           <svg
-                            className="w-6 h-6"
+                            className="w-6 h-6 text-green-600"
                             fill="none"
-                            stroke={colors.primary}
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
                             <path
@@ -512,16 +395,10 @@ const ShowStudents = () => {
                           </svg>
                         </div>
                         <div>
-                          <h3
-                            className="text-lg font-semibold"
-                            style={{ color: colors.lightText }}
-                          >
+                          <h3 className="text-sm font-medium text-gray-600">
                             Filtered Students
                           </h3>
-                          <p
-                            className="text-4xl font-bold"
-                            style={{ color: colors.dark }}
-                          >
+                          <p className="text-2xl font-bold text-gray-800">
                             {filteredCount}
                           </p>
                         </div>
@@ -530,58 +407,31 @@ const ShowStudents = () => {
                   </div>
 
                   {/* FILTER BAR */}
-                  <div
-                    className="rounded-xl p-5 mb-6 shadow-sm"
-                    style={{
-                      backgroundColor: "#F9F9F9",
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  >
+                  <div className="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-100 rounded-xl p-5 mb-6 shadow-sm">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                       <div className="flex flex-col">
-                        <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
-                        >
+                        <label className="text-xs font-medium text-gray-600 mb-1">
                           Gender
                         </label>
                         <select
                           disabled={loading}
-                          className="cursor-pointer w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          style={{
-                            border: `1px solid ${colors.border}`,
-                            backgroundColor: "white",
-                            focusRing: colors.primary,
-                            focusBorder: "transparent",
-                          }}
+                          className="cursor-pointer w-full border border-sky-200 bg-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                           value={genderFilter}
                           onChange={(e) => setGenderFilter(e.target.value)}
                         >
                           <option value="">All Genders</option>
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
-                          <option value="Prefer not to say">
-                            Prefer not to say
-                          </option>
                         </select>
                       </div>
 
                       <div className="flex flex-col">
-                        <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
-                        >
+                        <label className="text-xs font-medium text-gray-600 mb-1">
                           Year Level
                         </label>
                         <select
                           disabled={loading}
-                          className="cursor-pointer w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          style={{
-                            border: `1px solid ${colors.border}`,
-                            backgroundColor: "white",
-                            focusRing: colors.primary,
-                            focusBorder: "transparent",
-                          }}
+                          className="cursor-pointer w-full border border-sky-200 bg-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                           value={yearFilter}
                           onChange={(e) => setYearFilter(e.target.value)}
                         >
@@ -594,21 +444,12 @@ const ShowStudents = () => {
                       </div>
 
                       <div className="flex flex-col">
-                        <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
-                        >
+                        <label className="text-xs font-medium text-gray-600 mb-1">
                           Course
                         </label>
                         <select
                           disabled={loading}
-                          className="cursor-pointer w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          style={{
-                            border: `1px solid ${colors.border}`,
-                            backgroundColor: "white",
-                            focusRing: colors.primary,
-                            focusBorder: "transparent",
-                          }}
+                          className="cursor-pointer w-full border border-sky-200 bg-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                           value={courseFilter}
                           onChange={(e) => setCourseFilter(e.target.value)}
                         >
@@ -626,25 +467,16 @@ const ShowStudents = () => {
                       </div>
 
                       <div className="flex flex-col">
-                        <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
-                        >
+                        <label className="text-xs font-medium text-gray-600 mb-1">
                           Status
                         </label>
                         <select
                           disabled={loading}
-                          className="cursor-pointer w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          style={{
-                            border: `1px solid ${colors.border}`,
-                            backgroundColor: "white",
-                            focusRing: colors.primary,
-                            focusBorder: "transparent",
-                          }}
+                          className="cursor-pointer w-full border border-sky-200 bg-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                           value={statusFilter}
                           onChange={(e) => setStatusFilter(e.target.value)}
                         >
-                          <option value="">All Status</option>
+                          <option value="">All Statuses</option>
                           <option value="1">Approved</option>
                           <option value="0">Disapproved</option>
                           <option value="2">Pending</option>
@@ -654,10 +486,7 @@ const ShowStudents = () => {
 
                     {/* SEARCH FIELD */}
                     <div className="flex flex-col">
-                      <label
-                        className="text-md font-semibold mb-1"
-                        style={{ color: colors.lightText }}
-                      >
+                      <label className="text-xs font-medium text-gray-600 mb-1">
                         Search Students
                       </label>
                       <div className="relative">
@@ -667,18 +496,12 @@ const ShowStudents = () => {
                           value={search}
                           disabled={loading}
                           onChange={(e) => setSearch(e.target.value)}
-                          className="w-full rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 placeholder:text-sm shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          style={{
-                            border: `1px solid ${colors.border}`,
-                            backgroundColor: "white",
-                            focusRing: colors.primary,
-                            focusBorder: "transparent",
-                          }}
+                          className="w-full border border-sky-200 bg-white rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-transparent placeholder:text-sm shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                         <svg
-                          className="absolute left-3 top-2.5 h-5 w-5"
+                          className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
                           fill="none"
-                          stroke={colors.lightText}
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
                           <path
@@ -698,27 +521,9 @@ const ShowStudents = () => {
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow ${
                           loading
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            : "bg-[#D30203] text-white hover:brightness-90 transition-all duration-300 cursor-pointer"
+                            : "bg-white text-sky-600 border border-sky-300 hover:bg-sky-50 hover:shadow-md"
                         }`}
-                        // style={{
-                        //   color: colors.primary,
-                        //   borderColor: colors.primary,
-                        //   hoverBackground: `${colors.primary}10`,
-                        // }}
                       >
-                        {/* <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke={colors.primary}
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                          ></path>
-                        </svg> */}
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -730,41 +535,71 @@ const ShowStudents = () => {
                             strokeLinejoin="round"
                             strokeWidth="2"
                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                          />
+                          ></path>
                         </svg>
                         Reset Filters
                       </button>
                     </div>
                   </div>
 
-                  <div
-                    className="overflow-x-auto rounded-xl shadow-sm"
-                    style={{ border: `1px solid ${colors.border}` }}
-                  >
+                  <div className="overflow-x-auto rounded-xl border border-sky-100 shadow-sm">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead style={{ backgroundColor: colors.dark }}>
+                      <thead className="bg-slate-950">
                         <tr>
-                          {[
-                            "ID",
-                            "Profile",
-                            "QR Code",
-                            "EDP",
-                            "Name",
-                            "Course",
-                            "Year",
-                            "Gender",
-                            "Status",
-                            "Actions",
-                          ].map((header) => (
-                            <th
-                              key={header}
-                              scope="col"
-                              className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider"
-                              style={{ color: colors.primary }}
-                            >
-                              {header}
-                            </th>
-                          ))}
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider"
+                          >
+                            ID
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider"
+                          >
+                            Profile
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider"
+                          >
+                            QR Code
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider"
+                          >
+                            EDP
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider"
+                          >
+                            Name
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider"
+                          >
+                            Course
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider"
+                          >
+                            Year
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-red-600 uppercase tracking-wider"
+                          >
+                            Status
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-center text-xs font-medium text-red-600 uppercase tracking-wider"
+                          >
+                            Actions
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
@@ -772,7 +607,7 @@ const ShowStudents = () => {
                           <tr>
                             <td colSpan="9" className="px-6 py-12 text-center">
                               <div className="flex flex-col items-center justify-center">
-                                <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                <div className="w-12 h-12 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mb-4"></div>
                                 <p className="text-gray-600 font-medium">
                                   Loading student data...
                                 </p>
@@ -899,14 +734,14 @@ const ShowStudents = () => {
                                 )}
                               </td>
 
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-semibold">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-mono">
                                 {student.edp_number}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm font-medium text-gray-900">
                                   {student.firstname} {student.lastname}
                                 </div>
-                                <div className="text-sm text-gray-500">
+                                <div className="text-xs text-gray-500">
                                   {student.email}
                                 </div>
                               </td>
@@ -915,9 +750,6 @@ const ShowStudents = () => {
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                 {student.year_level}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                {student.gender}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
@@ -940,7 +772,7 @@ const ShowStudents = () => {
                                 <div className="flex justify-center space-x-2">
                                   <button
                                     onClick={() => handleApprove(student)}
-                                    className={`inline-flex items-center px-3 py-2 rounded-md text-xs font-medium ${
+                                    className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${
                                       student.active_status === 1
                                         ? "bg-green-100 text-green-800 cursor-not-allowed"
                                         : "bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 cursor-pointer"
@@ -954,7 +786,7 @@ const ShowStudents = () => {
                                     className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${
                                       student.active_status === 0
                                         ? "bg-red-100 text-red-800 cursor-not-allowed"
-                                        : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer transition"
+                                        : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer"
                                     }`}
                                     disabled={student.active_status === 0}
                                   >

@@ -6,6 +6,19 @@ import syborg_logo from "../assets/images/syborg_logo.png";
 import ccs_logo from "../assets/images/ccs_logo.png";
 import scc_logo from "../assets/images/scc_logo.png";
 
+const colors = {
+  primary: "#D30203",
+  dark: "#151515",
+  lightBg: "#F5F5F5",
+  text: "#333333",
+  lightText: "#777777",
+  border: "#E0E0E0",
+  success: "#28A745",
+  warning: "#FFC107",
+  danger: "#DC3545",
+  info: "#17A2B8",
+};
+
 const Navbar = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const location = useLocation();
@@ -31,9 +44,12 @@ const Navbar = () => {
         to={item.path}
         className={`${
           isActive
-            ? "text-[var(--color-primary)] font-bold"
-            : "font-semibold text-gray-700"
-        } hover:text-[var(--color-primary)] transition-colors`}
+            ? `text-${colors.primary} font-bold`
+            : `font-semibold text-${colors.text}`
+        } hover:text-${colors.primary} transition-colors`}
+        style={{
+          color: isActive ? colors.primary : colors.text,
+        }}
       >
         {item.title}
       </Link>
@@ -42,40 +58,33 @@ const Navbar = () => {
 
   return (
     <div className="w-full fixed top-0 z-50">
-      {/* <div className="w-full flex justify-center">
-        <div className="mt-2 mx-2 px-4 py-2 text-xs text-blue-900 font-medium text-center bg-blue-200/30 backdrop-blur-md border border-blue-300 shadow-md rounded-md max-w-screen-md w-full">
-          This is the official <strong>SYBORG</strong> website — currently in{" "}
-          <strong>beta testing</strong>. You may log in using{" "}
-          <span className="font-semibold">admin@admin.com</span> and password{" "}
-          <span className="font-semibold">password</span>.
-        </div>
-      </div> */}
-
-      {/* <div className="w-full">
-        <div className="w-full bg-blue-200/100 text-blue-900 text-center text-xs font-medium py-2 px-4 backdrop-blur-md shadow-md border-b border-blue-300 rounded-none">
-          This is the official <strong>SYBORG</strong> website — currently in{" "}
-          <strong>beta testing</strong>. You may log in using{" "}
-          <span className="font-semibold">admin@admin.com</span> and password{" "}
-          <span className="font-semibold">password</span>.
-        </div>
-      </div> */}
-
+      {/* Announcement Banner */}
       <div className="w-full">
-        <div className="w-full bg-blue-200/100 text-blue-900 text-center text-xs font-medium py-2 px-4 lg:px-16 backdrop-blur-md shadow-md border-b border-blue-300 rounded-none">
+        <div
+          className="w-full text-center text-xs font-medium py-2 px-4 lg:px-16 backdrop-blur-md shadow-sm border-b"
+          style={{
+            backgroundColor: `${colors.primary}20`,
+            color: colors.dark,
+            borderColor: colors.border,
+          }}
+        >
           Welcome to the official <strong>SYBORG</strong> website — currently in{" "}
           <strong>beta testing</strong>. You may log in using{" "}
           <span className="font-semibold">admin@admin.com</span> and password{" "}
           <span className="font-semibold">123456</span> to explore content
           management features. Students may register using their{" "}
           <span className="font-semibold">sccpag.edu.ph</span> email to access
-          QR codes, attendance logs, and upcoming events. { " "}
-          {/* <br className="hidden md:block" /> */}
-          If you encounter any issues or bugs, please contact the developer{" "}
+          QR codes, attendance logs, and upcoming events. If you encounter any
+          issues or bugs, please contact the developer{" "}
           <span className="font-semibold">Jefferson Balde</span> for assistance.
         </div>
       </div>
 
-      <div className="w-full bg-white backdrop-blur-md border-b border-[#CBD5E1]">
+      {/* Main Navbar */}
+      <div
+        className="w-full bg-white backdrop-blur-md border-b"
+        style={{ borderColor: colors.border }}
+      >
         <motion.div
           className="hidden lg:flex justify-between px-6 md:px-14 py-2 items-center"
           initial={{ opacity: 0, y: 20 }}
@@ -91,16 +100,19 @@ const Navbar = () => {
               alt="SYBORG LOGO"
               width={70}
               height={70}
-              className="drop-shadow-[0_0_10px_rgba(0,102,255,0.6)]"
+              className="drop-shadow-[0_0_10px_rgba(211,2,3,0.4)]"
               initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
               transition={{ duration: 0.9, ease: "easeOut" }}
             />
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--color-primary)] drop-shadow-[2px_2px_2px_rgba(0,0,0,0.4)]">
+              <h1
+                className="text-2xl md:text-3xl font-extrabold drop-shadow-[2px_2px_2px_rgba(0,0,0,0.2)]"
+                style={{ color: colors.primary }}
+              >
                 SYBORG
               </h1>
-              <p className="text-md text-[var(--color-primary)]">
+              <p className="text-md" style={{ color: colors.primary }}>
                 SCC System Builders Organization
               </p>
             </div>
@@ -111,16 +123,22 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Search"
-                className="pl-10 pr-4 py-2 w-96 bg-white/70 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:bg-white placeholder:text-gray-500 transition-all duration-300 group-hover:shadow-md"
+                className="pl-10 pr-4 py-2 w-96 border rounded-md shadow-sm focus:outline-none focus:ring-2 placeholder:text-gray-500 transition-all duration-300 group-hover:shadow-md"
+                style={{
+                  backgroundColor: colors.lightBg,
+                  borderColor: colors.border,
+                  focusRing: colors.primary,
+                }}
               />
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 group-focus-within:text-[var(--color-primary)]"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 group-focus-within:text-[var(--color-primary)]"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
                 width="20"
                 height="20"
+                style={{ color: colors.lightText }}
               >
                 <path
                   strokeLinecap="round"
@@ -133,7 +151,12 @@ const Navbar = () => {
 
             <Link
               to="/login"
-              className="px-5 py-2 rounded-md bg-[var(--color-primary)] text-white font-semibold shadow-sm hover:bg-blue-700 hover:shadow-md transition duration-200"
+              className="px-5 py-2 rounded-md font-semibold shadow-sm hover:shadow-md transition duration-200"
+              style={{
+                backgroundColor: colors.primary,
+                color: "white",
+                hoverBackground: `${colors.primary}90`,
+              }}
             >
               Login
             </Link>
@@ -153,7 +176,13 @@ const Navbar = () => {
       </div>
 
       {/* Bottom Panel - NavLinks */}
-      <div className="hidden lg:flex w-full bg-[#F8FAFC] border-b border-[#CBD5E1] px-6 md:px-14 py-3 uppercase text-sm">
+      <div
+        className="hidden lg:flex w-full border-b px-6 md:px-14 py-3 uppercase text-sm"
+        style={{
+          backgroundColor: colors.lightBg,
+          borderColor: colors.border,
+        }}
+      >
         <motion.div
           className="flex gap-8"
           initial={{ opacity: 0, y: 9 }}
@@ -170,23 +199,32 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Nav */}
-      <div className="flex lg:hidden justify-between items-center px-4 py-2 bg-white/90 backdrop-blur-md border-b border-[#CBD5E1]">
+      <div
+        className="flex lg:hidden justify-between items-center px-4 py-2 bg-white/90 backdrop-blur-md border-b"
+        style={{ borderColor: colors.border }}
+      >
         <Link to="/" className="flex items-center gap-3">
           <motion.img
             src={syborg_logo}
             alt="SYBORG Logo"
             width={50}
             height={50}
-            className="mr-1 drop-shadow-[0_0_10px_rgba(0,102,255,0.6)]"
+            className="mr-1 drop-shadow-[0_0_10px_rgba(211,2,3,0.4)]"
             initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           />
           <div>
-            <h1 className="text-xl font-extrabold text-[var(--color-primary)] drop-shadow-[2px_2px_2px_rgba(0,0,0,0.4)]">
+            <h1
+              className="text-xl font-extrabold drop-shadow-[2px_2px_2px_rgba(0,0,0,0.2)]"
+              style={{ color: colors.primary }}
+            >
               SYBORG
             </h1>
-            <h1 className="font-normal text-sm md:text-lg text-[var(--color-primary)] drop-shadow-[1px_1px_1px_rgba(0,0,0,0.3)]">
+            <h1
+              className="font-normal text-sm md:text-lg drop-shadow-[1px_1px_1px_rgba(0,0,0,0.2)]"
+              style={{ color: colors.primary }}
+            >
               SCC System Builders Organization
             </h1>
           </div>
@@ -209,14 +247,16 @@ const Navbar = () => {
                 rotate: openMenu ? 45 : 0,
                 y: openMenu ? 8 : 0,
               }}
-              className="w-8 h-[3px] bg-[var(--color-primary)] rounded origin-left"
+              className="w-8 h-[3px] rounded origin-left"
+              style={{ backgroundColor: colors.primary }}
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
             />
             <motion.span
               animate={{
                 opacity: openMenu ? 0 : 1,
               }}
-              className="w-8 h-[3px] bg-[var(--color-primary)] rounded"
+              className="w-8 h-[3px] rounded"
+              style={{ backgroundColor: colors.primary }}
               transition={{ duration: 0.2 }}
             />
             <motion.span
@@ -224,7 +264,8 @@ const Navbar = () => {
                 rotate: openMenu ? -45 : 0,
                 y: openMenu ? -8 : 0,
               }}
-              className="w-8 h-[3px] bg-[var(--color-primary)] rounded origin-left"
+              className="w-8 h-[3px] rounded origin-left"
+              style={{ backgroundColor: colors.primary }}
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
             />
           </div>
@@ -240,7 +281,8 @@ const Navbar = () => {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="fixed right-0 top-0 w-[65%]  h-screen bg-[#ecf0f3] p-10 z-50 shadow-lg"
+            className="fixed right-0 top-0 w-[65%] h-screen p-10 z-50 shadow-lg"
+            style={{ backgroundColor: colors.lightBg }}
           >
             <div className="flex w-full items-center justify-end">
               <motion.div
@@ -252,13 +294,15 @@ const Navbar = () => {
                 <motion.span
                   initial={{ rotate: 0 }}
                   animate={{ rotate: 45 }}
-                  className="w-7 h-[3px] bg-[var(--color-primary)] rounded origin-center"
+                  className="w-7 h-[3px] rounded origin-center"
+                  style={{ backgroundColor: colors.primary }}
                   transition={{ type: "spring", stiffness: 300 }}
                 />
                 <motion.span
                   initial={{ rotate: 0 }}
                   animate={{ rotate: -45 }}
-                  className="w-7 h-[3px] bg-[var(--color-primary)] rounded origin-center -mt-[3px]"
+                  className="w-7 h-[3px] rounded origin-center -mt-[3px]"
+                  style={{ backgroundColor: colors.primary }}
                   transition={{ type: "spring", stiffness: 300 }}
                 />
               </motion.div>
@@ -275,6 +319,7 @@ const Navbar = () => {
                   <motion.li
                     key={link.title}
                     className="py-5 uppercase font-medium"
+                    style={{ color: colors.text }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleClick}
@@ -283,14 +328,18 @@ const Navbar = () => {
                   </motion.li>
                 ))}
                 <motion.li
-                  className="mt-5 bg-color-blue text-color-white-smoke px-3 py-2 rounded-sm"
+                  className="mt-5 px-3 py-2 rounded-sm"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleClick}
                 >
                   <Link
                     to="/login"
-                    className="px-7 py-4 rounded-md bg-[var(--color-primary)] text-white font-semibold shadow-sm hover:bg-blue-700 hover:shadow-md transition duration-200"
+                    className="px-7 py-4 rounded-md font-semibold shadow-sm transition duration-200"
+                    style={{
+                      backgroundColor: colors.primary,
+                      color: "white",
+                    }}
                   >
                     Login
                   </Link>
@@ -305,7 +354,7 @@ const Navbar = () => {
               transition={{ delay: 0.4 }}
             >
               <a href="https://web.facebook.com/SyBorgSCC">
-                <BsFacebook size={30} />
+                <BsFacebook size={30} style={{ color: colors.primary }} />
               </a>
             </motion.div>
           </motion.div>
