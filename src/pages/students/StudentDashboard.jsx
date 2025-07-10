@@ -64,6 +64,38 @@ const StudentDashboard = () => {
     });
   };
 
+  // const downloadCard = (id) => {
+  //   const el = document.getElementById(id);
+  //   const imgs = el.getElementsByTagName("img");
+
+  //   let loaded = 0;
+  //   const total = imgs.length;
+
+  //   if (total === 0) {
+  //     html2canvas(el).then((canvas) => {
+  //       const link = document.createElement("a");
+  //       link.download = id + ".png";
+  //       link.href = canvas.toDataURL("image/png");
+  //       link.click();
+  //     });
+  //     return;
+  //   }
+
+  //   for (let img of imgs) {
+  //     img.onload = () => {
+  //       loaded++;
+  //       if (loaded === total) {
+  //         html2canvas(el).then((canvas) => {
+  //           const link = document.createElement("a");
+  //           link.download = id + ".png";
+  //           link.href = canvas.toDataURL("image/png");
+  //           link.click();
+  //         });
+  //       }
+  //     };
+  //   }
+  // };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: colors.lightBg }}>
       {/* Header */}
@@ -165,7 +197,9 @@ const StudentDashboard = () => {
                             <label className="block text-md font-semibold text-gray-500 mb-1">
                               Program
                             </label>
-                            <p className="text-md font-medium">{user?.course}</p>
+                            <p className="text-md font-medium">
+                              {user?.course}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -187,7 +221,7 @@ const StudentDashboard = () => {
                             <div className="flex flex-col lg:flex-row items-center justify-center gap-6 w-full">
                               {/* FRONT CARD */}
                               <div
-                                className="card relative rounded-xl shadow-lg overflow-hidden w-full max-w-sm h-96 lg:h-[480px]"
+                                className="card relative rounded-xl shadow-lg overflow-hidden w-full max-w-sm max-h-[90vh] overflow-y-auto"
                                 id="front-card"
                                 style={{
                                   background: colors.cardBg,
@@ -212,8 +246,8 @@ const StudentDashboard = () => {
                                     <div className="org-title text-lg font-bold tracking-wide">
                                       SYSTEM BUILDERS ORGANIZATION
                                     </div>
-                                    <div className="course text-xs mt-1 opacity-80">
-                                      BACHELOR OF SCIENCE IN COMPUTER SCIENCE
+                                    <div className="course text-md mt-1 mb-4 opacity-80 ">
+                                      {user?.course}
                                     </div>
                                   </div>
                                   <div className="center flex flex-col items-center justify-center flex-grow">
@@ -237,6 +271,18 @@ const StudentDashboard = () => {
                                         </div>
                                       )}
                                     </div>
+
+                                    <div
+                                      className="student-name text-lg font-bold mt-2 text-center px-4 py-2 rounded-lg"
+                                      style={{
+                                        backgroundColor: colors.cardHighlight,
+                                      }}
+                                    >
+                                      {user?.edp_number
+                                        ? `${user.edp_number}`
+                                        : "STUDENT EDP NUMBER"}
+                                    </div>
+
                                     <div
                                       className="student-name text-lg font-bold mt-2 text-center px-4 py-2 rounded-lg"
                                       style={{
@@ -248,19 +294,21 @@ const StudentDashboard = () => {
                                         : "STUDENT NAME"}
                                     </div>
                                   </div>
-                                  <div className="signature text-center text-xs">
+                                  <div className="mt-5 signature text-center text-xs">
                                     <div className="line border-t border-white w-32 mx-auto my-1 opacity-60"></div>
                                     <div className="font-bold">
                                       DR. PHILIPCRIS C. ENCARNACION
                                     </div>
-                                    <div className="opacity-80">CCS DEAN</div>
+                                    <div className="opacity-80 text-md ">
+                                      CCS DEAN
+                                    </div>
                                   </div>
                                 </div>
                               </div>
 
                               {/* BACK CARD */}
                               <div
-                                className="card relative rounded-xl shadow-lg overflow-hidden w-full max-w-sm h-96 lg:h-[480px]"
+                                className="card relative rounded-xl shadow-lg overflow-hidden w-full max-w-sm max-h-[90vh] overflow-y-auto"
                                 id="back-card"
                                 style={{
                                   background: colors.cardBg,
@@ -313,7 +361,7 @@ const StudentDashboard = () => {
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex flex-wrap justify-center gap-3 w-full">
+                            {/* <div className="flex flex-wrap justify-center gap-3 w-full">
                               <button
                                 onClick={() => downloadCard("front-card")}
                                 className="btn flex items-center justify-center px-4 py-2 rounded-lg font-medium"
@@ -340,7 +388,7 @@ const StudentDashboard = () => {
                               >
                                 <FaPrint className="mr-2" /> Print Both
                               </button>
-                            </div>
+                            </div> */}
                           </div>
                         </div>
                       </div>
