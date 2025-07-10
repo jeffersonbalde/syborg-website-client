@@ -74,9 +74,11 @@ const Navbar = () => {
           <span className="font-semibold">123456</span> to explore content
           management features. Students may register using their{" "}
           <span className="font-semibold">sccpag.edu.ph</span> email to access
-          QR codes, attendance logs, and upcoming events. If you encounter any
-          issues or bugs, please contact the developer{" "}
-          <span className="font-semibold">Jefferson Balde</span> for assistance.
+          QR codes, attendance logs, and upcoming events. If you have
+          feedback, encounter issues, or spot a bug, please feel free to contact
+          the developer, <span className="font-semibold">Jefferson Balde</span>,
+          for assistance and improvements. Your input helps us enhance the
+          platform.
         </div>
       </div>
 
