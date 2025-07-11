@@ -218,7 +218,7 @@ const ShowSlider = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Sidebar */}
-            <div className="md:w-1/4">
+            <div className="md:w-1/4 sticky top-0 h-screen">
               <AdminSidebar />
             </div>
 

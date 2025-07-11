@@ -16,7 +16,7 @@ const Layout = () => {
       <Navbar />
       {/* <main className="mt-[68px] lg:mt-[141px]"> */}
       {/* <main className="mt-[116px] lg:mt-[174px]"> */}
-      <main className="mt-[196px] lg:mt-[190px]">
+      <main className="mt-[229px] lg:mt-[190px]">
         <Outlet />
       </main>
     </>

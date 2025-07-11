@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { token } from "../../../utils/GetToken";
 import "animate.css";
+import { format } from "date-fns";
 
 const colors = {
   primary: "#D30203",
@@ -21,21 +22,10 @@ const colors = {
   info: "#17A2B8",
 };
 
-const CreateSlider = ({ placeholder }) => {
+const CreateEvent = ({}) => {
   const [loading, setLoading] = useState(false);
-  const [imageLoading, setImageLoading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [imageId, setImageID] = useState(null);
 
-  const titleRef = useRef(null);
-
-  const config = useMemo(
-    () => ({
-      readonly: false,
-      placeholder: placeholder || "Content",
-    }),
-    [placeholder]
-  );
+  const title = useRef(null);
 
   const {
     register,
@@ -47,10 +37,6 @@ const CreateSlider = ({ placeholder }) => {
     setError,
     clearErrors,
   } = useForm();
-
-  const editor = useRef(null);
-  const [content, setContent] = useState("");
-  const imageFile = watch("image");
 
   useEffect(() => {
     const scrollTimer = setTimeout(() => {
@@ -80,46 +66,13 @@ const CreateSlider = ({ placeholder }) => {
   };
 
   const onSubmit = async (data) => {
-    let hasError = false;
-    const plainContent = stripHtml(content);
-
-    if (!plainContent || plainContent.trim() === "") {
-      setError("content", {
-        type: "manual",
-        message: "The content field is required.",
-      });
-      hasError = true;
-    } else {
-      clearErrors("content");
-    }
-
-    if (!imageFile || imageFile.length === 0) {
-      setError("image", {
-        type: "manual",
-        message: "The image field is required.",
-      });
-      hasError = true;
-    } else {
-      clearErrors("image");
-    }
-
-    const valid = await trigger(["title", "description"]);
-    if (hasError || !valid) return;
-
     setLoading(true);
-
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("content", content);
-    formData.append("image", imageFile[0]);
-    if (imageId) formData.append("imageId", imageId);
 
     try {
       const MySwal = getCustomSwal();
       const confirmResult = await MySwal.fire({
         title: "Are you sure?",
-        text: "Do you want to save this hero slider content?",
+        text: "Do you want to create this event?",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Yes, save it!",
@@ -147,11 +100,10 @@ const CreateSlider = ({ placeholder }) => {
       }
 
       MySwal.fire({
-        title: "Saving...",
+        title: "Creating Event...",
         allowOutsideClick: false,
         showConfirmButton: false,
         allowEscapeKey: false,
-        // willOpen: () => Swal.showLoading(),
         backdrop: true,
         didOpen: () => {
           Swal.showLoading();
@@ -162,129 +114,51 @@ const CreateSlider = ({ placeholder }) => {
         },
       });
 
-      const res = await fetch(
-        `${import.meta.env.VITE_LARAVEL_API}/heroslider`,
+      const eventData = {
+        title: data.title,
+        location: data.location,
+        event_date: `${data.event_date}T00:00:00`,
+        start_time: `${data.event_date}T${data.start_time}:00`,
+        end_time: `${data.event_date}T${data.end_time}:00`,
+      };
+
+      const response = await fetch(
+        `${import.meta.env.VITE_LARAVEL_API}/events`,
         {
           method: "POST",
           headers: {
-            Accept: "application/json",
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token()}`,
           },
-          body: formData,
+          body: JSON.stringify(eventData),
         }
       );
 
-      const result = await res.json();
+      const result = await response.json();
+
       Swal.close();
       setLoading(false);
 
-      if (result.status === true) {
-        toast.success(result.message);
-        navigate("/admin/hero");
-      } else {
-        if (result.errors) {
-          Object.entries(result.errors).forEach(([field, messages]) => {
-            toast.error(`${field}: ${messages[0]}`);
-          });
-        } else {
-          toast.error(result.message || "Failed to save slider.");
-        }
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create event");
       }
+
+      toast.success("Event created successfully!");
+      navigate("/admin/events");
+      console.log(result);
     } catch (error) {
-      Swal.close();
+      toast.error(error.message || "An error occurred");
+      console.error("Error:", error);
+    } finally {
       setLoading(false);
-      toast.error("Error occurred while saving slider.");
-      console.error(error);
-    }
-  };
-
-  const onInvalid = (errors) => {
-    const plainContent = stripHtml(content);
-
-    if (!plainContent || plainContent.trim() === "") {
-      setError("content", {
-        type: "manual",
-        message: "The content field is required.",
-      });
-    }
-
-    if (!imageFile || imageFile.length === 0) {
-      setError("image", {
-        type: "manual",
-        message: "The image field is required.",
-      });
     }
   };
 
   useEffect(() => {
-    const subscription = watch((value, { name }) => {
-      if (name === "image" && value.image?.length) {
-        clearErrors("image");
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, clearErrors]);
-
-  const handleFile = async (e) => {
-    setImageLoading(true);
-    const formData = new FormData();
-    const file = e.target.files[0];
-
-    if (!file) {
-      toast.error("No file selected.");
-      setImageLoading(false);
-      return;
+    if (watch("start_time") && watch("end_time")) {
+      trigger("end_time");
     }
-
-    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Only PNG, JPG, JPEG, and GIF files are allowed.");
-      e.target.value = "";
-      setImageLoading(false);
-      return;
-    }
-
-    setPreviewUrl(URL.createObjectURL(file));
-
-    formData.append("image", file);
-
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_LARAVEL_API}/hero-slider-image`,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token()}`,
-          },
-          body: formData,
-        }
-      );
-
-      const result = await res.json();
-
-      if (result.status === true && result.data && result.data.id) {
-        setImageID(result.data.id);
-      } else {
-        toast.error(
-          result?.errors?.image?.[0] || result.message || "Upload failed."
-        );
-        setPreviewUrl(null);
-      }
-    } catch (error) {
-      toast.error("Failed to upload image.");
-      setPreviewUrl(null);
-      console.error(error);
-    } finally {
-      setImageLoading(false);
-    }
-  };
-
-  const stripHtml = (html) => {
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  };
+  }, [watch("start_time"), trigger]);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: colors.lightBg }}>
@@ -301,7 +175,7 @@ const CreateSlider = ({ placeholder }) => {
             className="text-lg italic hidden md:block"
             style={{ color: "rgba(255,255,255,0.7)" }}
           >
-            Create a new hero slider banner
+            Create a new event
           </span>
         </div>
       </header>
@@ -329,12 +203,12 @@ const CreateSlider = ({ placeholder }) => {
                       className="text-xl font-bold"
                       style={{ color: colors.primary }}
                     >
-                      Create Hero Slider
+                      Create New Event
                     </h4>
                     <Link
-                      to={loading || imageLoading ? "#" : "/admin/hero"}
+                      to={loading ? "#" : "/admin/hero"}
                       onClick={(e) => {
-                        if (loading || imageLoading) {
+                        if (loading) {
                           e.preventDefault();
                           toast.info(
                             "Please wait until the process completes."
@@ -342,7 +216,7 @@ const CreateSlider = ({ placeholder }) => {
                         }
                       }}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow ${
-                        loading || imageLoading
+                        loading
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-white text-primary border border-primary hover:bg-gray-300"
                       }`}
@@ -367,11 +241,9 @@ const CreateSlider = ({ placeholder }) => {
                   <hr className="my-4" style={{ borderColor: colors.border }} />
 
                   <form
-                    onSubmit={handleSubmit(onSubmit, onInvalid)}
+                    onSubmit={handleSubmit(onSubmit)}
                     className={`${
-                      loading || imageLoading
-                        ? "pointer-events-none opacity-50"
-                        : ""
+                      loading ? "pointer-events-none opacity-50" : ""
                     }`}
                   >
                     {/* Title */}
@@ -408,27 +280,28 @@ const CreateSlider = ({ placeholder }) => {
                         </p>
                       )}
                     </div>
-                    {/* Description */}
+
+                    {/* Location */}
                     <div className="mb-4">
                       <label
                         className="cursor-pointer block text-sm font-medium mb-1"
                         htmlFor="description"
                         style={{ color: colors.text }}
                       >
-                        Description *
+                        Location *
                       </label>
                       <input
-                        {...register("description", {
-                          required: "The description field is required.",
+                        {...register("location", {
+                          required: "The location field is required.",
                         })}
                         id="description"
                         type="text"
                         className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
-                          errors.description
+                          errors.location
                             ? "border-red-500 focus:ring-red-500"
                             : `border-gray-300 focus:ring-${colors.primary}`
                         }`}
-                        placeholder="Description"
+                        placeholder="Location"
                         style={{
                           borderColor: errors.description
                             ? colors.danger
@@ -436,161 +309,155 @@ const CreateSlider = ({ placeholder }) => {
                           focusRing: colors.primary,
                         }}
                       />
-                      {errors.description && (
+                      {errors.location && (
                         <p className="text-sm text-red-600 mt-1">
-                          {errors.description?.message}
+                          {errors.location?.message}
                         </p>
                       )}
                     </div>
-                    {/* Content */}
+
+                    {/* Event Date */}
                     <div className="mb-4">
                       <label
-                        htmlFor="content"
-                        className="block text-sm font-medium mb-1"
+                        htmlFor="event_date"
+                        className="cursor-pointer block text-sm font-medium mb-1"
                         style={{ color: colors.text }}
                       >
-                        Content *
+                        Event Date *
                       </label>
-                      <JoditEditor
-                        id="content"
-                        ref={editor}
-                        value={content}
-                        config={config}
-                        tabIndex={1}
-                        onChange={(newContent) => {
-                          setContent(newContent);
-                          const plainText = stripHtml(newContent);
-                          if (plainText.trim() !== "") {
-                            clearErrors("content");
-                          }
-                        }}
-                      />
+                      <input
+                        {...register("event_date", {
+                          required: "Event date is required",
+                          validate: (value) => {
+                            const selectedDate = new Date(value);
+                            const year = selectedDate.getFullYear();
+                            const currentYear = new Date().getFullYear();
 
-                      {errors.content && (
-                        <p className="text-sm text-red-600 mt-1">
-                          {errors.content.message}
-                        </p>
-                      )}
-                    </div>
-                    {/* Image */}
-                    <div className="mb-6">
-                      <label
-                        htmlFor="image"
-                        className="block text-sm font-medium mb-1"
-                        style={{ color: colors.text }}
-                      >
-                        Image *
-                      </label>
+                            if (year < currentYear) {
+                              return "Event year must not be in the past.";
+                            }
 
-                      <div
-                        className={`hover:bg-red-100 relative border-2 border-dashed rounded-lg text-center transition-all hover:border-${
-                          colors.primary
-                        } hover:bg-${colors.primary}10 ${
-                          errors.image
-                            ? "border-red-500"
-                            : `border-${colors.border}`
+                            if (year > currentYear + 5) {
+                              return `Event year is too far in the future (max: ${
+                                currentYear + 5
+                              })`;
+                            }
+
+                            return true;
+                          },
+                        })}
+                        id="event_date"
+                        type="date"
+                        min={format(new Date(), "yyyy-MM-dd")} // Restrict to today or future
+                        className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+                          errors.event_date
+                            ? "border-red-500 focus:ring-red-500"
+                            : `border-gray-300 focus:ring-${colors.primary}`
                         }`}
                         style={{
-                          width: "250px",
-                          height: "250px",
-                          position: "relative",
-                          overflow: "hidden",
-                          borderColor: errors.image
+                          borderColor: errors.event_date
                             ? colors.danger
                             : colors.border,
+                          focusRing: colors.primary,
                         }}
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          const droppedFile = e.dataTransfer.files[0];
-                          if (droppedFile) {
-                            const fileInput = document.getElementById("image");
-                            const dataTransfer = new DataTransfer();
-                            dataTransfer.items.add(droppedFile);
-                            fileInput.files = dataTransfer.files;
-                            fileInput.dispatchEvent(
-                              new Event("change", { bubbles: true })
-                            );
-                          }
-                        }}
-                      >
-                        <input
-                          id="image"
-                          type="file"
-                          accept="image/png, image/jpeg, image/jpg, image/gif"
-                          {...register("image", {
-                            onChange: handleFile,
-                          })}
-                          className={`absolute inset-0 opacity-0 w-full h-full z-10 ${
-                            imageLoading
-                              ? "cursor-not-allowed"
-                              : "cursor-pointer"
-                          }`}
-                          disabled={imageLoading}
-                        />
-
-                        <div
-                          className="flex flex-col items-center justify-center w-full h-full p-4 z-0"
-                          style={{ color: colors.lightText }}
-                        >
-                          {imageFile && imageFile.length > 0 ? (
-                            <img
-                              src={URL.createObjectURL(imageFile[0])}
-                              alt="Preview"
-                              className="object-cover w-full h-full rounded-lg"
-                            />
-                          ) : (
-                            <>
-                              <svg
-                                className="w-10 h-10 mb-2"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                viewBox="0 0 24 24"
-                                style={{ color: colors.primary }}
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M3 16l4-4a3 3 0 014 0l4 4M13 12l4-4a3 3 0 014 0l1 1m-6 13H6a2 2 0 01-2-2V5a2 2 0 012-2h9a2 2 0 012 2v1"
-                                />
-                              </svg>
-                              <p className="text-sm">
-                                Click or drag file to upload <br />
-                                <span
-                                  className="text-xs"
-                                  style={{ color: colors.lightText }}
-                                >
-                                  (JPG, PNG, or GIF)
-                                </span>
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-
-                      {errors.image && (
-                        <p className="text-sm text-red-600 mt-2">
-                          {errors.image.message}
+                      />
+                      {errors.event_date && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {errors.event_date?.message}
                         </p>
                       )}
                     </div>
+
+                    {/* Start Time */}
+                    <div className="mb-4">
+                      <label
+                        htmlFor="start_time"
+                        className="cursor-pointer block text-sm font-medium mb-1"
+                        style={{ color: colors.text }}
+                      >
+                        Start Time *
+                      </label>
+                      <input
+                        {...register("start_time", {
+                          required: "Start time is required",
+                        })}
+                        id="start_time"
+                        type="time"
+                        className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+                          errors.start_time
+                            ? "border-red-500 focus:ring-red-500"
+                            : `border-gray-300 focus:ring-${colors.primary}`
+                        }`}
+                        style={{
+                          borderColor: errors.start_time
+                            ? colors.danger
+                            : colors.border,
+                          focusRing: colors.primary,
+                        }}
+                      />
+                      {errors.start_time && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {errors.start_time?.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* End Time */}
+                    <div className="mb-4">
+                      <label
+                        htmlFor="end_time"
+                        className="cursor-pointer block text-sm font-medium mb-1"
+                        style={{ color: colors.text }}
+                      >
+                        End Time *
+                      </label>
+                      <input
+                        {...register("end_time", {
+                          required: "End time is required",
+                          validate: (value) => {
+                            const startTime = watch("start_time");
+                            if (startTime && value <= startTime) {
+                              return "End time must be after start time";
+                            }
+                            return true;
+                          },
+                        })}
+                        id="end_time"
+                        type="time"
+                        className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+                          errors.end_time
+                            ? "border-red-500 focus:ring-red-500"
+                            : `border-gray-300 focus:ring-${colors.primary}`
+                        }`}
+                        style={{
+                          borderColor: errors.end_time
+                            ? colors.danger
+                            : colors.border,
+                          focusRing: colors.primary,
+                        }}
+                      />
+                      {errors.end_time && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {errors.end_time?.message}
+                        </p>
+                      )}
+                    </div>
+
                     <button
                       type="submit"
                       className={`px-6 py-2 rounded-md text-sm font-semibold flex items-center gap-2 transition-colors ${
-                        loading || imageLoading
+                        loading
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : `bg-${colors.primary} transition-all duration-300 shadow hover:brightness-90 text-white cursor-pointer`
                       }`}
-                      disabled={loading || imageLoading}
+                      disabled={loading}
                       style={{
-                        backgroundColor:
-                          loading || imageLoading
-                            ? colors.border
-                            : colors.primary,
+                        backgroundColor: loading
+                          ? colors.border
+                          : colors.primary,
                       }}
                     >
-                      {loading || imageLoading ? (
+                      {loading ? (
                         <>
                           <svg
                             className="animate-spin h-4 w-4 text-white"
@@ -612,9 +479,7 @@ const CreateSlider = ({ placeholder }) => {
                               d="M4 12a8 8 0 018-8v8H4z"
                             ></path>
                           </svg>
-                          {imageLoading
-                            ? "Uploading Image..."
-                            : "Submitting..."}
+                          {loading && "Submitting..."}
                         </>
                       ) : (
                         "Submit"
@@ -631,4 +496,4 @@ const CreateSlider = ({ placeholder }) => {
   );
 };
 
-export default CreateSlider;
+export default CreateEvent;
