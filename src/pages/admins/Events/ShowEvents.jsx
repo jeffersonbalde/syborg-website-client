@@ -96,54 +96,57 @@ const ShowEvents = () => {
   };
 
   const handleDelete = async (event) => {
-    const MySwal = getCustomSwal();
+    // const MySwal = getCustomSwal();
 
-    const confirmResult = await MySwal.fire({
-      title: "Are you sure?",
-      text: `You are about to delete "${event.title}". This action cannot be undone.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete",
-      cancelButtonText: "Cancel",
-    });
+    // const confirmResult = await MySwal.fire({
+    //   title: "Are you sure?",
+    //   text: `You are about to delete "${event.title}". This action cannot be undone.`,
+    //   icon: "warning",
+    //   showCancelButton: true,
+    //   confirmButtonText: "Yes, delete",
+    //   cancelButtonText: "Cancel",
+    // });
 
-    if (!confirmResult.isConfirmed) return;
+    // if (!confirmResult.isConfirmed) return;
 
-    MySwal.fire({
-      title: "Deleting...",
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
+    // MySwal.fire({
+    //   title: "Deleting...",
+    //   allowOutsideClick: false,
+    //   allowEscapeKey: false,
+    //   didOpen: () => {
+    //     Swal.showLoading();
+    //   },
+    // });
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_LARAVEL_API}/events/${event.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Bearer ${token()}`,
-          },
-        }
-      );
+    // try {
+    //   const res = await fetch(
+    //     `${import.meta.env.VITE_LARAVEL_API}/events/${event.id}`,
+    //     {
+    //       method: "DELETE",
+    //       headers: {
+    //         "Content-type": "application/json",
+    //         Authorization: `Bearer ${token()}`,
+    //       },
+    //     }
+    //   );
 
-      const result = await res.json();
-      Swal.close();
+    //   const result = await res.json();
+    //   Swal.close();
 
-      if (result.message) {
-        toast.success(result.message);
-        fetchEvents();
-      } else {
-        toast.error(result.message || "Failed to delete event.");
-      }
-    } catch (err) {
-      Swal.close();
-      toast.error("Error occurred while deleting event.");
-      console.error(err);
-    }
+    //   if (result.message) {
+    //     toast.success(result.message);
+    //     fetchEvents();
+    //   } else {
+    //     toast.error(result.message || "Failed to delete event.");
+    //   }
+    // } catch (err) {
+    //   Swal.close();
+    //   toast.error("Error occurred while deleting event.");
+    //   console.error(err);
+    // }
+
+
+    
   };
 
   useEffect(() => {
@@ -515,19 +518,19 @@ const ShowEvents = () => {
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div className="flex justify-center space-x-2">
                                   <Link
-                                    to={`/admin/events/${event.id}/attendance`}
+                                    // to={`/admin/events/${event.id}/attendance`}
                                     className="inline-flex items-center px-3 py-2 rounded-md text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-pointer"
                                   >
                                     Take Attendance
                                   </Link>
                                   <Link
-                                    to={`/admin/events/${event.id}/edit`}
+                                    // to={`/admin/events/${event.id}/edit`}
                                     className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 cursor-pointer"
                                   >
                                     Edit
                                   </Link>
                                   <button
-                                    onClick={() => handleDelete(event)}
+                                    // onClick={() => handleDelete(event)}
                                     className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer"
                                   >
                                     Delete
