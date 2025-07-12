@@ -319,19 +319,7 @@ const StudentSidebar = () => {
                     Swal.close();
 
                     // Show success toast
-                    toast.success("Logged out successfully!", {
-                      position: "top-right",
-                      autoClose: 3000,
-                      hideProgressBar: false,
-                      closeOnClick: true,
-                      pauseOnHover: true,
-                      draggable: true,
-                      progress: undefined,
-                      theme: "colored",
-                      style: {
-                        background: colors.success,
-                      },
-                    });
+                    toast.success("Logged out successfully!");
 
                     // Redirect to login
                     navigate("/login");
@@ -341,19 +329,7 @@ const StudentSidebar = () => {
                     Swal.close();
 
                     // Show error toast
-                    toast.error("Logout failed. Please try again.", {
-                      position: "top-right",
-                      autoClose: 5000,
-                      hideProgressBar: false,
-                      closeOnClick: true,
-                      pauseOnHover: true,
-                      draggable: true,
-                      progress: undefined,
-                      theme: "colored",
-                      style: {
-                        background: colors.danger,
-                      },
-                    });
+                    toast.error("Logout failed. Please try again.");
 
                     console.error("Logout failed:", error);
                   }

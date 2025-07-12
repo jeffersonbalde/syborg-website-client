@@ -13,6 +13,7 @@ import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import "animate.css";
+import { reverse } from "lodash";
 
 const colors = {
   primary: "#D30203",
@@ -92,6 +93,9 @@ const Login = () => {
             });
 
             Swal.close();
+
+            toast.success(result.message);
+
             navigate(
               result.role === "admin"
                 ? "/admin/dashboard"
