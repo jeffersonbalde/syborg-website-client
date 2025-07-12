@@ -160,6 +160,8 @@ const Login = () => {
         });
         localStorage.setItem("token", result.token);
 
+        toast.success(result.message);
+
         navigate(
           result.role === "admin" ? "/admin/dashboard" : "/student/dashboard"
         );

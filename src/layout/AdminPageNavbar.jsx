@@ -5,8 +5,8 @@ import Navbar from "../components/AdminPageNavbar";
 const Layout = ({ children }) => {
   return (
     <>
-      <Navbar />
-      <main className="mt-[68px] lg:mt-[86px]">
+      {/* <Navbar /> */}
+      <main >
         {children}
       </main>
     </>

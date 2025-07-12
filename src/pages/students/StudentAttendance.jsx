@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import StudentSidebar from "../../components/StudentSidebar";
-import "animate.css";
 import { useAuth } from "../../context/AuthContext";
-import { Link } from "react-router-dom";
-import { FaSpinner } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 const colors = {
   primary: "#D30203",
@@ -24,51 +22,57 @@ const StudentAttendance = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.lightBg }}>
-      {/* Header */}
-      <header
-        className="shadow-md py-5"
-        style={{ backgroundColor: colors.dark }}
-      >
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-white">
-            SYBORG Portal
-          </h1>
-          <span
-            className="text-lg italic hidden md:block"
-            style={{ color: "rgba(255,255,255,0.7)" }}
-          >
-            Welcome back, {user?.firstname}!
-          </span>
-        </div>
-      </header>
+    <div
+      className="min-h-screen flex overflow-hidden"
+      style={{ backgroundColor: colors.lightBg }}
+    >
+      {/* Sidebar */}
+      <StudentSidebar />
 
-      {/* Main Content */}
-      <main className="px-4 py-8 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Sidebar */}
-            <div className="md:w-1/4">
-              <StudentSidebar />
-            </div>
-
-            {/* Dashboard Content */}
-            <div className="md:w-3/4 w-full animate__animated animate__fadeIn">
+      {/* Content */}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto h-screen min-w-0">
+        <div className="px-4 py-3 md:px-3">
+          <div className="max-w-7xl mx-auto">
+            <div className="w-full">
               <div
-                className="shadow-lg rounded-xl overflow-hidden animate__animated animate__fadeIn"
+                className="shadow-lg rounded-xl overflow-hidden relative"
                 style={{
                   backgroundColor: "white",
                   border: `1px solid ${colors.border}`,
                 }}
               >
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h4
-                      className="text-xl font-bold"
-                      style={{ color: colors.primary }}
-                    >
-                      Attendance Records
-                    </h4>
+                <div className="p-4">
+                  {/* Header Section */}
+                  <div
+                    className="sticky top-0 z-10 p-4 shadow-sm mb-5 bg-gray-700 rounded-xl"
+                    style={{
+                      borderBottom: `1px solid ${colors.border}`,
+                    }}
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex items-center">
+                        <div className="hidden md:block mr-3">
+                          <div
+                            className="w-2 h-8 rounded-full"
+                            style={{ backgroundColor: colors.primary }}
+                          ></div>
+                        </div>
+                        <div>
+                          <h4
+                            className="text-xl md:text-2xl font-bold tracking-tight"
+                            style={{ color: colors.lightBg }}
+                          >
+                            Attendance Records
+                          </h4>
+                          <p
+                            className="text-sm mt-1"
+                            style={{ color: colors.lightBg }}
+                          >
+                            View your attendance history
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from "react";
 import StudentSidebar from "../../components/StudentSidebar";
-import "animate.css";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaDownload, FaPrint, FaIdCard, FaUserGraduate, FaQrcode } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import html2canvas from "html2canvas";
-import {
-  FaDownload,
-  FaPrint,
-  FaIdCard,
-  FaUserGraduate,
-  FaQrcode,
-} from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
 
 const colors = {
   primary: "#D30203",
-  secondary: "#A52A2A", // Brownish red
   dark: "#151515",
   lightBg: "#F5F5F5",
   text: "#333333",
@@ -40,7 +33,6 @@ const StudentDashboard = () => {
     upcoming_assignments: 0,
   });
 
-  // Simulate loading student stats
   useEffect(() => {
     const timer = setTimeout(() => {
       setStats({
@@ -64,102 +56,76 @@ const StudentDashboard = () => {
     });
   };
 
-  // const downloadCard = (id) => {
-  //   const el = document.getElementById(id);
-  //   const imgs = el.getElementsByTagName("img");
-
-  //   let loaded = 0;
-  //   const total = imgs.length;
-
-  //   if (total === 0) {
-  //     html2canvas(el).then((canvas) => {
-  //       const link = document.createElement("a");
-  //       link.download = id + ".png";
-  //       link.href = canvas.toDataURL("image/png");
-  //       link.click();
-  //     });
-  //     return;
-  //   }
-
-  //   for (let img of imgs) {
-  //     img.onload = () => {
-  //       loaded++;
-  //       if (loaded === total) {
-  //         html2canvas(el).then((canvas) => {
-  //           const link = document.createElement("a");
-  //           link.download = id + ".png";
-  //           link.href = canvas.toDataURL("image/png");
-  //           link.click();
-  //         });
-  //       }
-  //     };
-  //   }
-  // };
-
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.lightBg }}>
-      {/* Header */}
-      <header
-        className="shadow-md py-5"
-        style={{ backgroundColor: colors.dark }}
-      >
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-white">
-            SYBORG Portal
-          </h1>
-          <span
-            className="text-lg italic hidden md:block"
-            style={{ color: "rgba(255,255,255,0.7)" }}
-          >
-            Welcome back, {user?.firstname}!
-          </span>
-        </div>
-      </header>
+    <div className="min-h-screen flex overflow-hidden" style={{ backgroundColor: colors.lightBg }}>
+      {/* Sidebar */}
+      <StudentSidebar />
 
-      {/* Main Content */}
-      <main className="px-4 py-8 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Sidebar */}
-            <div className="md:w-1/4">
-              <StudentSidebar />
-            </div>
-
-            {/* Dashboard Content */}
-            <div className="md:w-3/4 w-full animate__animated animate__fadeIn">
-              {loading ? (
-                <div className="flex flex-col items-center justify-center h-96">
-                  <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                  <p className="text-gray-600 font-medium">
-                    Fetching student informartion....
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Please wait while we fetch the data
-                  </p>
-                </div>
-              ) : (
-                <div
-                  className="shadow-lg rounded-xl overflow-hidden animate__animated animate__fadeIn"
-                  style={{
-                    backgroundColor: "white",
-                    border: `1px solid ${colors.border}`,
-                  }}
-                >
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h4
-                        className="text-xl font-bold"
-                        style={{ color: colors.primary }}
-                      >
-                        Dashboard Overview
-                      </h4>
+      {/* Content */}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto h-screen min-w-0">
+        <div className="px-4 py-3 md:px-3">
+          <div className="max-w-7xl mx-auto">
+            <div className="w-full animate__animated animate__fadeIn">
+              <div
+                className="shadow-lg rounded-xl overflow-hidden relative"
+                style={{
+                  backgroundColor: "white",
+                  border: `1px solid ${colors.border}`,
+                }}
+              >
+                <div className="p-4">
+                  {/* Header Section */}
+                  <div
+                    className="sticky top-0 z-10 p-4 shadow-sm mb-4 bg-gray-700 rounded-xl"
+                    style={{
+                      borderBottom: `1px solid ${colors.border}`,
+                    }}
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex items-center">
+                        <div className="hidden md:block mr-3">
+                          <div
+                            className="w-2 h-8 rounded-full"
+                            style={{ backgroundColor: colors.primary }}
+                          ></div>
+                        </div>
+                        <div>
+                          <h4
+                            className="text-xl md:text-2xl font-bold tracking-tight"
+                            style={{ color: colors.lightBg }}
+                          >
+                            Student Dashboard
+                          </h4>
+                          <p
+                            className="text-sm mt-1"
+                            style={{ color: colors.lightBg }}
+                          >
+                            Welcome back, {user?.firstname}!
+                          </p>
+                        </div>
+                      </div>
                     </div>
+                  </div>
 
-                    <div className="flex flex-col gap-5 ">
+
+                  {loading ? (
+                    <div className="flex justify-center items-center py-12">
+                      <div className="flex flex-col items-center">
+                        <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p className="text-gray-600 font-medium">
+                          Fetching student information...
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Please wait while we fetch the records
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-4">
                       {/* Student Information Section */}
-                      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-                        <div className="p-5 border-b border-gray-100">
-                          <h3 className="text-lg font-bold flex items-center">
+                      <div className="bg-[#D3D3D3] rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                        <div className="p-4 border-b border-gray-100">
+                          <h3 className="text-xl font-bold flex items-center">
                             <FaUserGraduate
                               className="mr-2"
                               style={{ color: colors.primary }}
@@ -172,7 +138,7 @@ const StudentDashboard = () => {
                             <label className="block text-md font-semibold text-gray-500 mb-1">
                               EDP Number
                             </label>
-                            <p className="text-md font-medium">
+                            <p className="text-md font-semibold">
                               {user?.edp_number || "N/A"}
                             </p>
                           </div>
@@ -180,7 +146,7 @@ const StudentDashboard = () => {
                             <label className="block text-md font-semibold text-gray-500 mb-1">
                               Full Name
                             </label>
-                            <p className="text-md font-medium">
+                            <p className="text-md font-semibold">
                               {user?.firstname} {user?.middlename}{" "}
                               {user?.lastname}
                             </p>
@@ -189,7 +155,7 @@ const StudentDashboard = () => {
                             <label className="block text-md font-semibold text-gray-500 mb-1">
                               Email
                             </label>
-                            <p className="text-md font-medium">
+                            <p className="text-md font-semibold">
                               {user?.email || "N/A"}
                             </p>
                           </div>
@@ -197,7 +163,7 @@ const StudentDashboard = () => {
                             <label className="block text-md font-semibold text-gray-500 mb-1">
                               Program
                             </label>
-                            <p className="text-md font-medium">
+                            <p className="text-md font-semibold">
                               {user?.course}
                             </p>
                           </div>
@@ -205,9 +171,9 @@ const StudentDashboard = () => {
                       </div>
 
                       {/* ID Card Section */}
-                      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-                        <div className="p-5 border-b border-gray-100">
-                          <h3 className="text-lg font-bold flex items-center">
+                      <div className="bg-[#D3D3D3] rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                        <div className="p-4 border-b border-gray-100">
+                          <h3 className="text-xl font-bold flex items-center">
                             <FaIdCard
                               className="mr-2"
                               style={{ color: colors.primary }}
@@ -217,7 +183,6 @@ const StudentDashboard = () => {
                         </div>
                         <div className="p-5">
                           <div className="flex flex-col items-center space-y-6">
-                            {/* Cards Container - Stacked on mobile, side by side on larger screens */}
                             <div className="flex flex-col lg:flex-row items-center justify-center gap-6 w-full">
                               {/* FRONT CARD */}
                               <div
@@ -360,7 +325,6 @@ const StudentDashboard = () => {
                               </div>
                             </div>
 
-                            {/* Action Buttons */}
                             {/* <div className="flex flex-wrap justify-center gap-3 w-full">
                               <button
                                 onClick={() => downloadCard("front-card")}
@@ -376,7 +340,7 @@ const StudentDashboard = () => {
                                 onClick={() => downloadCard("back-card")}
                                 className="btn flex items-center justify-center px-4 py-2 rounded-lg font-medium"
                                 style={{
-                                  backgroundColor: colors.secondary,
+                                  backgroundColor: colors.dark,
                                   color: "white",
                                 }}
                               >
@@ -384,7 +348,11 @@ const StudentDashboard = () => {
                               </button>
                               <button
                                 onClick={() => window.print()}
-                                className="btn flex items-center justify-center px-4 py-2 rounded-lg font-medium bg-gray-700 text-white"
+                                className="btn flex items-center justify-center px-4 py-2 rounded-lg font-medium"
+                                style={{
+                                  backgroundColor: colors.success,
+                                  color: "white",
+                                }}
                               >
                                 <FaPrint className="mr-2" /> Print Both
                               </button>
@@ -393,9 +361,9 @@ const StudentDashboard = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>

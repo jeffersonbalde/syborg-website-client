@@ -9,6 +9,9 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
+import CreateEvent from "./CreateEvent";
+
+import { motion, AnimatePresence } from "framer-motion";
 
 const colors = {
   primary: "#D30203",
@@ -57,6 +60,16 @@ const ShowEvents = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCloseModal = () => {
+    setIsModalClosing(true);
+    setTimeout(() => {
+      setIsCreateModalOpen(false);
+      setIsModalClosing(false);
+    }, 300);
+  };
+
   const navigate = useNavigate();
 
   const fetchEvents = async () => {
@@ -97,7 +110,6 @@ const ShowEvents = () => {
 
   const handleDelete = async (event) => {
     // const MySwal = getCustomSwal();
-
     // const confirmResult = await MySwal.fire({
     //   title: "Are you sure?",
     //   text: `You are about to delete "${event.title}". This action cannot be undone.`,
@@ -106,9 +118,7 @@ const ShowEvents = () => {
     //   confirmButtonText: "Yes, delete",
     //   cancelButtonText: "Cancel",
     // });
-
     // if (!confirmResult.isConfirmed) return;
-
     // MySwal.fire({
     //   title: "Deleting...",
     //   allowOutsideClick: false,
@@ -117,7 +127,6 @@ const ShowEvents = () => {
     //     Swal.showLoading();
     //   },
     // });
-
     // try {
     //   const res = await fetch(
     //     `${import.meta.env.VITE_LARAVEL_API}/events/${event.id}`,
@@ -129,10 +138,8 @@ const ShowEvents = () => {
     //       },
     //     }
     //   );
-
     //   const result = await res.json();
     //   Swal.close();
-
     //   if (result.message) {
     //     toast.success(result.message);
     //     fetchEvents();
@@ -144,9 +151,6 @@ const ShowEvents = () => {
     //   toast.error("Error occurred while deleting event.");
     //   console.error(err);
     // }
-
-
-    
   };
 
   useEffect(() => {
@@ -185,63 +189,109 @@ const ShowEvents = () => {
   }, [currentPage, perPage]);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.lightBg }}>
-      {/* Header */}
-      <header
-        className="shadow-md py-5 "
-        style={{ backgroundColor: colors.dark }}
-      >
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-white">
-            SYBORG Portal
-          </h1>
-          <span
-            className="text-lg italic hidden md:block"
-            style={{ color: "rgba(255,255,255,0.7)" }}
-          >
-            View and manage all events
-          </span>
-        </div>
-      </header>
+    <div
+      className="min-h-screen flex overflow-hidden"
+      style={{ backgroundColor: colors.lightBg }}
+    >
+      {/* Sidebar - now handled by AdminSidebar component */}
+      <AdminSidebar />
 
-      <main className="px-4 py-8 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Sidebar */}
-            <div className="md:w-1/4">
-              <AdminSidebar />
-            </div>
-
-            {/* Main Content */}
-            <div className="md:w-3/4 w-full animate__animated animate__fadeIn">
-              <div
-                className="shadow-lg rounded-xl overflow-hidden"
+      {/* Content */}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto h-screen min-w-0">
+        <div className="px-4 py-3 md:px-3">
+          <div className="max-w-7xl mx-auto">
+            {/* Your existing content here */}
+            <div className="w-full animate__animated animate__fadeIn">
+              <div  
+                className="shadow-lg rounded-xl overflow-hidden relative"
                 style={{
                   backgroundColor: "white",
                   border: `1px solid ${colors.border}`,
                 }}
               >
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h4
-                      className="text-xl font-bold"
-                      style={{ color: colors.primary }}
-                    >
-                      Events Management
-                    </h4>
-                    <Link
-                      to="/admin/events/new"
-                      className="px-4 py-2 bg-[#D30203] text-white rounded-lg text-sm font-medium hover:brightness-90 transition-all duration-300"
-                    >
-                      Create New Event
-                    </Link>
+                <div className="p-4">
+                  <div
+                    className="sticky top-0 z-10 p-4 shadow-sm mb-5 bg-gray-700 rounded-xl"
+                    style={{
+                    //   backgroundColor: colors.lightBg,
+                      borderBottom: `1px solid ${colors.border}`,
+                    }}
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 ">
+                      {/* Title with decorative element */}
+                      <div className="flex items-center">
+                        <div className="hidden md:block mr-3">
+                          <div
+                            className="w-2 h-8 rounded-full"
+                            style={{ backgroundColor: colors.primary }}
+                          ></div>
+                        </div>
+                        <div>
+                          <h4
+                            className="text-xl md:text-2xl font-bold tracking-tight"
+                            style={{ color: colors.lightBg }}
+                          >
+                            Events Management
+                          </h4>
+                          <p
+                            className="text-sm mt-1 "
+                            style={{ color: colors.lightBg }}
+                          >
+                            Create and manage your events
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Action button with hover effect */}
+                      <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="group relative flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 overflow-hidden cursor-pointer"
+                        style={{
+                          backgroundColor: colors.primary,
+                          color: "white",
+                          boxShadow: `0 2px 4px ${colors.primary}20`,
+                          maxWidth: "200px",
+                        }}
+                      >
+                        <span className="relative z-10 flex items-center gap-2">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="4"
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            />
+                          </svg>
+                          Create New Event
+                        </span>
+                        {/* This is the hover overlay - fixed to work with your color scheme */}
+                        <span
+                          className="absolute inset-0 transition-all duration-300"
+                          style={{
+                            backgroundColor: "rgba(0,0,0,0)",
+                          }}
+                        ></span>
+                      </button>
+
+                      {/* Add this to your CSS or style tag */}
+                      <style jsx>{`
+                        button:hover span:last-child {
+                          background-color: rgba(0, 0, 0, 0.1) !important;
+                        }
+                      `}</style>
+                    </div>
                   </div>
 
                   {/* Count Display */}
                   <div
-                    className="rounded-xl p-5 mb-6 shadow-sm"
+                    className="rounded-xl p-4 mb-5 shadow-sm "
                     style={{
-                      backgroundColor: "#F9F9F9",
+                      backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
                     }}
                   >
@@ -267,8 +317,8 @@ const ShowEvents = () => {
                         </div>
                         <div>
                           <h3
-                            className="text-lg font-semibold"
-                            style={{ color: colors.lightText }}
+                            className="text-xl font-semibold text-gray-700"
+                            // style={{ color: colors.lightText }}
                           >
                             Total Events
                           </h3>
@@ -285,17 +335,17 @@ const ShowEvents = () => {
 
                   {/* FILTER BAR */}
                   <div
-                    className="rounded-xl p-5 mb-6 shadow-sm"
+                    className="rounded-xl p-4 mb-5 shadow-sm"
                     style={{
-                      backgroundColor: "#F9F9F9",
+                      backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
                     }}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="flex flex-col">
                         <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
+                          className="text-lg font-semibold mb-1 text-gray-700"
+                        //   style={{ color: colors.lightText }}
                         >
                           Event Date
                         </label>
@@ -317,8 +367,8 @@ const ShowEvents = () => {
                       {/* SEARCH FIELD */}
                       <div className="flex flex-col md:col-span-2">
                         <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
+                          className="text-lg font-semibold mb-1 text-gray-700" 
+                        //   style={{ color: colors.lightText }}
                         >
                           Search Events
                         </label>
@@ -358,7 +408,7 @@ const ShowEvents = () => {
                       <button
                         onClick={handleResetFilters}
                         disabled={loading}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 shadow ${
                           loading
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : "bg-[#D30203] text-white hover:brightness-90 transition-all duration-300 cursor-pointer"
@@ -373,7 +423,7 @@ const ShowEvents = () => {
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            strokeWidth="2"
+                            strokeWidth="4"
                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                           />
                         </svg>
@@ -403,7 +453,7 @@ const ShowEvents = () => {
                             <th
                               key={header}
                               scope="col"
-                              className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider"
+                              className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wider"
                               style={{ color: colors.primary }}
                             >
                               {header}
@@ -454,12 +504,12 @@ const ShowEvents = () => {
                                 {(search || dateFilter) && (
                                   <button
                                     onClick={handleResetFilters}
-                                    className="mt-3 px-4 py-2 bg-sky-100 text-sky-700 rounded-lg text-sm font-medium hover:bg-sky-200 transition"
+                                    className="mt-3 px-4 py-2 bg-sky-100 text-sky-700 rounded-lg text-sm font-medium hover:bg-sky-200 transition cursor-pointer"
                                   >
                                     Reset Filters
                                   </button>
                                 )}
-                                <button
+                                {/* <button
                                   onClick={() => navigate("/admin/events/new")}
                                   onMouseEnter={(e) =>
                                     (e.currentTarget.style.backgroundColor = `${colors.primary}20`)
@@ -474,7 +524,7 @@ const ShowEvents = () => {
                                   }}
                                 >
                                   Create New Event
-                                </button>
+                                </button> */}
                               </div>
                             </td>
                           </tr>
@@ -506,12 +556,12 @@ const ShowEvents = () => {
                                 {formatTime(event.end_time)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                   {event.present_students_count}
                                 </span>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
                                   {event.absent_students_count}
                                 </span>
                               </td>
@@ -519,19 +569,19 @@ const ShowEvents = () => {
                                 <div className="flex justify-center space-x-2">
                                   <Link
                                     // to={`/admin/events/${event.id}/attendance`}
-                                    className="inline-flex items-center px-3 py-2 rounded-md text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-pointer"
+                                    className="inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-pointer"
                                   >
                                     Take Attendance
                                   </Link>
                                   <Link
                                     // to={`/admin/events/${event.id}/edit`}
-                                    className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 cursor-pointer"
+                                    className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 cursor-pointer"
                                   >
                                     Edit
                                   </Link>
                                   <button
                                     // onClick={() => handleDelete(event)}
-                                    className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer"
+                                    className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer"
                                   >
                                     Delete
                                   </button>
@@ -543,20 +593,21 @@ const ShowEvents = () => {
                       </tbody>
                     </table>
                   </div>
+
                   {/* Enhanced Pagination Controls */}
                   <div
-                    className="mt-6 px-4 py-3 rounded-lg"
+                    className="mt-5 px-4 py-3 rounded-lg"
                     style={{
-                      backgroundColor: colors.lightBg,
+                      backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
                     }}
                   >
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-semibold">
                       {/* Items Count */}
                       <div className="flex items-center">
                         <span
-                          className="text-sm mr-2"
-                          style={{ color: colors.lightText }}
+                          className="text-md mr-2 text-gray-700 "
+                          //   style={{ color: colors.lightText }}
                         >
                           Rows per page:
                         </span>
@@ -566,7 +617,7 @@ const ShowEvents = () => {
                             setPerPage(Number(e.target.value));
                             setCurrentPage(1);
                           }}
-                          className="border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 transition-all"
+                          className="cursor-pointer border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 transition-all"
                           style={{
                             borderColor: colors.border,
                             backgroundColor: "white",
@@ -588,20 +639,20 @@ const ShowEvents = () => {
 
                       {/* Page Info */}
                       <div
-                        className="text-sm"
+                        className="text-md"
                         style={{ color: colors.lightText }}
                       >
                         <span
-                          style={{ color: colors.text }}
-                          className="font-medium"
+                        //   style={{ color: colors.text }}
+                          className="font-semibold text-gray-700"
                         >
                           {(currentPage - 1) * perPage + 1}-
                           {Math.min(currentPage * perPage, totalItems)}
                         </span>{" "}
                         of{" "}
                         <span
-                          style={{ color: colors.text }}
-                          className="font-medium"
+                        //   style={{ color: colors.text }}
+                          className="font-semibold text-gray-700"
                         >
                           {totalItems}
                         </span>
@@ -787,6 +838,36 @@ const ShowEvents = () => {
           </div>
         </div>
       </main>
+
+      <AnimatePresence>
+        {isCreateModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              style={{ border: `1px solid ${colors.border}` }}
+            >
+              <CreateEvent
+                onClose={() => setIsCreateModalOpen(false)}
+                onSuccess={() => {
+                  setIsCreateModalOpen(false);
+                  fetchEvents();
+                }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

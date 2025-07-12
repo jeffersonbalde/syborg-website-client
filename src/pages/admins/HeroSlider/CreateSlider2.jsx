@@ -288,7 +288,7 @@ const CreateSlider = ({ onClose, onSuccess, placeholder }) => {
   };
 
   return (
-    <div className="px-6 pt-6 bg-[#D3D3D3]">
+    <div className="p-6">
       <div
         className="top-0 z-10 p-4 shadow-sm mb-6 rounded-xl"
         style={{
@@ -341,7 +341,7 @@ const CreateSlider = ({ onClose, onSuccess, placeholder }) => {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="4"
+                  strokeWidth="2"
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
@@ -368,7 +368,7 @@ const CreateSlider = ({ onClose, onSuccess, placeholder }) => {
         }`}
       >
         {/* Title */}
-        <div className="mb-4 ">
+        <div className="mb-4">
           <label
             htmlFor="title"
             className="cursor-pointer block text-sm font-semibold mb-1 text-gray-700"
@@ -381,7 +381,7 @@ const CreateSlider = ({ onClose, onSuccess, placeholder }) => {
             })}
             id="title"
             type="text"
-            className={`font-semibold bg-white w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+            className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
               errors.title
                 ? "border-red-500 focus:ring-red-500"
                 : `border-gray-300 focus:ring-${colors.primary}`
@@ -407,7 +407,7 @@ const CreateSlider = ({ onClose, onSuccess, placeholder }) => {
             })}
             id="description"
             type="text"
-            className={`font-semibold bg-white w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+            className={`w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
               errors.description
                 ? "border-red-500 focus:ring-red-500"
                 : `border-gray-300 focus:ring-${colors.primary}`
@@ -459,7 +459,7 @@ const CreateSlider = ({ onClose, onSuccess, placeholder }) => {
             Image *
           </label>
           <div
-            className={`bg-white hover:bg-red-100 relative border-2 border-dashed rounded-lg text-center transition-all hover:border-${
+            className={`hover:bg-red-100 relative border-2 border-dashed rounded-lg text-center transition-all hover:border-${
               colors.primary
             } hover:bg-${colors.primary}10 ${
               errors.image ? "border-red-500" : `border-${colors.border}`
@@ -541,8 +541,8 @@ const CreateSlider = ({ onClose, onSuccess, placeholder }) => {
           )}
         </div>
 
-        <div className="mt-8 pt-4 bg-white border-t border-gray-200 sticky bottom-0 left-0 right-0 py-4 px-6 -mx-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 max-w-full">
+        <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Help text/status message - left aligned */}
             <div className="text-sm text-gray-500 flex items-center w-full md:w-auto font-semibold">
               <svg
@@ -590,14 +590,14 @@ const CreateSlider = ({ onClose, onSuccess, placeholder }) => {
                 type="submit"
                 disabled={loading || imageLoading}
                 className={`
-          px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 
-          transition-all duration-200 shadow-md
-          ${
-            loading || imageLoading
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : `bg-${colors.primary} text-white hover:shadow-lg cursor-pointer`
-          }
-        `}
+    px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 
+    transition-all duration-200 shadow-md
+    ${
+      loading || imageLoading
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : `bg-${colors.primary} text-white hover:shadow-lg cursor-pointer`
+    }
+  `}
                 style={{
                   backgroundColor:
                     loading || imageLoading ? undefined : colors.primary,

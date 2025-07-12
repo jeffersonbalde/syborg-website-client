@@ -9,6 +9,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
+import { motion, AnimatePresence } from "framer-motion";
 
 const colors = {
   primary: "#D30203",
@@ -56,15 +57,18 @@ const ShowStudents = () => {
   const [loading, setLoading] = useState(true);
   const [imgLoadedProfile, setImgLoadedProfile] = useState({});
   const [imgLoadedQr, setImgLoadedQr] = useState({});
-
   const [search, setSearch] = useState("");
   const [genderFilter, setGenderFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [courseFilter, setCourseFilter] = useState("");
-
   const [totalCount, setTotalCount] = useState(0);
   const [filteredCount, setFilteredCount] = useState(0);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   const navigate = useNavigate();
 
@@ -78,6 +82,8 @@ const ShowStudents = () => {
     if (yearFilter) queryParams.append("year_level", yearFilter);
     if (statusFilter) queryParams.append("status", statusFilter);
     if (courseFilter) queryParams.append("course", courseFilter);
+    queryParams.append("page", currentPage);
+    queryParams.append("per_page", perPage);
 
     try {
       const res = await fetch(
@@ -96,8 +102,10 @@ const ShowStudents = () => {
 
       const result = await res.json();
       setStudents(result.data);
-      setTotalCount(result.total_count || 0);
-      setFilteredCount(result.filtered_count || 0);
+      setTotalCount(result.meta?.total_count || 0);
+      setFilteredCount(result.meta?.filtered_count || 0);
+      setTotalItems(result.meta?.total || 0);
+      setTotalPages(result.meta?.last_page || 1);
     } catch (error) {
       toast.error("Error fetching students");
       console.error("Error fetching students:", error);
@@ -107,7 +115,7 @@ const ShowStudents = () => {
   };
 
   const handleApprove = async (student) => {
-    const MySwal = withReactContent(Swal);
+    const MySwal = getCustomSwal();
 
     if (student.active_status == 1) {
       MySwal.fire({
@@ -126,18 +134,16 @@ const ShowStudents = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, approve",
       cancelButtonText: "Cancel",
+      iconColor: colors.info,
       backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
       backdrop: `
-        rgba(0,0,0,0.7)
-        url("/images/loading.gif")
-        center top
-        no-repeat
-        `,
+      rgba(0,0,0,0.7)
+      url("/images/loading.gif")
+      center top
+      no-repeat
+    `,
       didOpen: () => {
+        // Swal.showLoading();
         document.body.style.overflow = "auto";
       },
       willClose: () => {
@@ -152,16 +158,6 @@ const ShowStudents = () => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
-      backdrop: `
-        rgba(0,0,0,0.7)
-        url("/images/loading.gif")
-        center top
-        no-repeat
-        `,
       didOpen: () => {
         Swal.showLoading();
         document.body.style.overflow = "auto";
@@ -200,7 +196,7 @@ const ShowStudents = () => {
   };
 
   const handleDisapprove = async (student) => {
-    const MySwal = withReactContent(Swal);
+    const MySwal = getCustomSwal();
 
     if (student.active_status == 0) {
       MySwal.fire({
@@ -219,18 +215,16 @@ const ShowStudents = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, disapprove",
       cancelButtonText: "Cancel",
+      iconColor: colors.info,
       backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
       backdrop: `
-        rgba(0,0,0,0.7)
-        url("/images/loading.gif")
-        center top
-        no-repeat
-        `,
+      rgba(0,0,0,0.7)
+      url("/images/loading.gif")
+      center top
+      no-repeat
+    `,
       didOpen: () => {
+        // Swal.showLoading();
         document.body.style.overflow = "auto";
       },
       willClose: () => {
@@ -245,16 +239,6 @@ const ShowStudents = () => {
       allowOutsideClick: false,
       allowEscapeKey: false,
       backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
-      backdrop: `
-        rgba(0,0,0,0.7)
-        url("/images/loading.gif")
-        center top
-        no-repeat
-        `,
       didOpen: () => {
         Swal.showLoading();
         document.body.style.overflow = "auto";
@@ -293,96 +277,16 @@ const ShowStudents = () => {
   };
 
   const handleDelete = async (student) => {
+    const MySwal = getCustomSwal();
     await MySwal.fire({
       title: "Dili ko.",
-      //   text: "You have been logged out successfully.",
-      //   icon: "success",
-      backdrop: true,
-      background: colors.lightBg,
-      color: colors.text,
-      confirmButtonColor: colors.primary,
-      cancelButtonColor: colors.lightText,
-      backdrop: `
-        rgba(0,0,0,0.7)
-        url("/images/loading.gif")
-        center top
-        no-repeat
-        `,
-      didOpen: () => {
-        // Swal.showLoading();
-        document.body.style.overflow = "auto";
-      },
-      willClose: () => {
-        document.body.style.overflow = "";
-      },
     });
-
-    // const MySwal = withReactContent(Swal);
-
-    // const confirmResult = await MySwal.fire({
-    //   title: "Are you sure?",
-    //   text: `You are about to permanently delete "${student.firstname} ${student.lastname}". This action cannot be undone.`,
-    //   icon: "warning",
-    //   showCancelButton: true,
-    //   confirmButtonText: "Yes, delete",
-    //   cancelButtonText: "Cancel",
-    //   backdrop: true,
-    //   didOpen: () => {
-    //     document.body.style.overflow = "auto";
-    //   },
-    //   willClose: () => {
-    //     document.body.style.overflow = "";
-    //   },
-    // });
-
-    // if (!confirmResult.isConfirmed) return;
-
-    // MySwal.fire({
-    //   title: "Deleting...",
-    //   allowOutsideClick: false,
-    //   allowEscapeKey: false,
-    //   backdrop: true,
-    //   didOpen: () => {
-    //     Swal.showLoading();
-    //     document.body.style.overflow = "auto";
-    //   },
-    //   willClose: () => {
-    //     document.body.style.overflow = "";
-    //   },
-    // });
-
-    // try {
-    //   const res = await fetch(
-    //     `${import.meta.env.VITE_LARAVEL_API}/students/${student.id}`,
-    //     {
-    //       method: "DELETE",
-    //       headers: {
-    //         "Content-type": "application/json",
-    //         Authorization: `Bearer ${token()}`,
-    //       },
-    //     }
-    //   );
-
-    //   const result = await res.json();
-    //   Swal.close();
-
-    //   if (result.status) {
-    //     toast.success(result.message);
-    //     fetchStudents();
-    //   } else {
-    //     toast.error(result.message || "Failed to delete student.");
-    //   }
-    // } catch (err) {
-    //   Swal.close();
-    //   toast.error("Error occurred while deleting student.");
-    //   console.error(err);
-    // }
   };
 
   useEffect(() => {
     const debouncedFetch = debounce(() => {
       fetchStudents();
-    }, 500); // 500ms delay
+    }, 500);
 
     debouncedFetch();
 
@@ -391,7 +295,11 @@ const ShowStudents = () => {
     };
   }, [search, genderFilter, yearFilter, statusFilter, courseFilter]);
 
-  const MySwal = withReactContent(Swal);
+  useEffect(() => {
+    fetchStudents();
+  }, [currentPage, perPage]);
+
+  const MySwal = getCustomSwal();
 
   const handleResetFilters = () => {
     setSearch("");
@@ -402,57 +310,105 @@ const ShowStudents = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.lightBg }}>
-      {/* Header */}
-      <header
-        className="shadow-md py-5 "
-        style={{ backgroundColor: colors.dark }}
-      >
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-white">
-            SYBORG Portal
-          </h1>
-          <span
-            className="text-lg italic hidden md:block"
-            style={{ color: "rgba(255,255,255,0.7)" }}
-          >
-            View all registered students here.
-          </span>
-        </div>
-      </header>
+    <div
+      className="min-h-screen flex overflow-hidden"
+      style={{ backgroundColor: colors.lightBg }}
+    >
+      {/* Sidebar */}
+      <AdminSidebar />
 
-      <main className="px-4 py-8 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Sidebar */}
-            <div className="md:w-1/4 sticky top-0 h-screen">
-              <AdminSidebar />
-            </div>
-
-            {/* Main Content */}
-            <div className="md:w-3/4 w-full animate__animated animate__fadeIn">
+      {/* Content */}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto h-screen min-w-0">
+        <div className="px-4 py-3 md:px-3">
+          <div className="max-w-7xl mx-auto">
+            <div className="w-full animate__animated animate__fadeIn">
               <div
-                className="shadow-lg rounded-xl overflow-hidden"
+                className="shadow-lg rounded-xl overflow-hidden relative"
                 style={{
                   backgroundColor: "white",
                   border: `1px solid ${colors.border}`,
                 }}
               >
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h4
-                      className="text-xl font-bold"
-                      style={{ color: colors.primary }}
-                    >
-                      Registered Students List
-                    </h4>
+                <div className="p-4">
+                  <div
+                    className="sticky top-0 z-10 p-4 shadow-sm mb-5 bg-gray-700 rounded-xl"
+                    style={{
+                      borderBottom: `1px solid ${colors.border}`,
+                    }}
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      {/* Title with decorative element */}
+                      <div className="flex items-center">
+                        <div className="hidden md:block mr-3">
+                          <div
+                            className="w-2 h-8 rounded-full"
+                            style={{ backgroundColor: colors.primary }}
+                          ></div>
+                        </div>
+                        <div>
+                          <h4
+                            className="text-xl md:text-2xl font-bold tracking-tight"
+                            style={{ color: colors.lightBg }}
+                          >
+                            Students Management
+                          </h4>
+                          <p
+                            className="text-sm mt-1"
+                            style={{ color: colors.lightBg }}
+                          >
+                            View and manage all registered students
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Action button with hover effect */}
+                      {/* <Link
+                        to="/admin/students/new"
+                        className="group relative flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 overflow-hidden cursor-pointer"
+                        style={{
+                          backgroundColor: colors.primary,
+                          color: "white",
+                          boxShadow: `0 2px 4px ${colors.primary}20`,
+                          maxWidth: "200px",
+                        }}
+                      >
+                        <span className="relative z-10 flex items-center gap-2">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            />
+                          </svg>
+                          Register New Student
+                        </span>
+                        <span
+                          className="absolute inset-0 transition-all duration-300"
+                          style={{
+                            backgroundColor: "rgba(0,0,0,0)",
+                          }}
+                        ></span>
+                      </Link> */}
+
+                      <style jsx>{`
+                        button:hover span:last-child {
+                          background-color: rgba(0, 0, 0, 0.1) !important;
+                        }
+                      `}</style>
+                    </div>
                   </div>
 
                   {/* Count Display */}
                   <div
-                    className="rounded-xl p-5 mb-6 shadow-sm"
+                    className="rounded-xl p-4 mb-5 shadow-sm"
                     style={{
-                      backgroundColor: "#F9F9F9",
+                      backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
                     }}
                   >
@@ -473,14 +429,11 @@ const ShowStudents = () => {
                               strokeLinejoin="round"
                               strokeWidth="2"
                               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                            ></path>
+                            />
                           </svg>
                         </div>
                         <div>
-                          <h3
-                            className="text-lg font-semibold"
-                            style={{ color: colors.lightText }}
-                          >
+                          <h3 className="text-xl font-semibold text-gray-700">
                             Total Students
                           </h3>
                           <p
@@ -508,14 +461,11 @@ const ShowStudents = () => {
                               strokeLinejoin="round"
                               strokeWidth="2"
                               d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                            ></path>
+                            />
                           </svg>
                         </div>
                         <div>
-                          <h3
-                            className="text-lg font-semibold"
-                            style={{ color: colors.lightText }}
-                          >
+                          <h3 className="text-xl font-semibold text-gray-700">
                             Filtered Students
                           </h3>
                           <p
@@ -531,18 +481,15 @@ const ShowStudents = () => {
 
                   {/* FILTER BAR */}
                   <div
-                    className="rounded-xl p-5 mb-6 shadow-sm"
+                    className="rounded-xl p-4 mb-5 shadow-sm"
                     style={{
-                      backgroundColor: "#F9F9F9",
+                      backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
                     }}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                       <div className="flex flex-col">
-                        <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
-                        >
+                        <label className="text-lg font-semibold mb-1 text-gray-700">
                           Gender
                         </label>
                         <select
@@ -567,10 +514,7 @@ const ShowStudents = () => {
                       </div>
 
                       <div className="flex flex-col">
-                        <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
-                        >
+                        <label className="text-lg font-semibold mb-1 text-gray-700">
                           Year Level
                         </label>
                         <select
@@ -594,10 +538,7 @@ const ShowStudents = () => {
                       </div>
 
                       <div className="flex flex-col">
-                        <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
-                        >
+                        <label className="text-lg font-semibold mb-1 text-gray-700">
                           Course
                         </label>
                         <select
@@ -626,10 +567,7 @@ const ShowStudents = () => {
                       </div>
 
                       <div className="flex flex-col">
-                        <label
-                          className="text-md font-semibold mb-1"
-                          style={{ color: colors.lightText }}
-                        >
+                        <label className="text-lg font-semibold mb-1 text-gray-700">
                           Status
                         </label>
                         <select
@@ -654,10 +592,7 @@ const ShowStudents = () => {
 
                     {/* SEARCH FIELD */}
                     <div className="flex flex-col">
-                      <label
-                        className="text-md font-semibold mb-1"
-                        style={{ color: colors.lightText }}
-                      >
+                      <label className="text-lg font-semibold mb-1 text-gray-700">
                         Search Students
                       </label>
                       <div className="relative">
@@ -686,7 +621,7 @@ const ShowStudents = () => {
                             strokeLinejoin="round"
                             strokeWidth="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                          ></path>
+                          />
                         </svg>
                       </div>
                     </div>
@@ -695,30 +630,12 @@ const ShowStudents = () => {
                       <button
                         onClick={handleResetFilters}
                         disabled={loading}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 shadow ${
                           loading
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : "bg-[#D30203] text-white hover:brightness-90 transition-all duration-300 cursor-pointer"
                         }`}
-                        // style={{
-                        //   color: colors.primary,
-                        //   borderColor: colors.primary,
-                        //   hoverBackground: `${colors.primary}10`,
-                        // }}
                       >
-                        {/* <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke={colors.primary}
-                            viewBox="0 0 24 24"
-                            >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                            ></path>
-                            </svg> */}
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -728,7 +645,7 @@ const ShowStudents = () => {
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            strokeWidth="2"
+                            strokeWidth="4"
                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                           />
                         </svg>
@@ -745,7 +662,7 @@ const ShowStudents = () => {
                       <thead style={{ backgroundColor: colors.dark }}>
                         <tr>
                           {[
-                            "ID",
+                            "#",
                             "Profile",
                             "QR Code",
                             "EDP",
@@ -759,7 +676,7 @@ const ShowStudents = () => {
                             <th
                               key={header}
                               scope="col"
-                              className="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider"
+                              className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wider"
                               style={{ color: colors.primary }}
                             >
                               {header}
@@ -770,11 +687,11 @@ const ShowStudents = () => {
                       <tbody className="bg-white divide-y divide-gray-200">
                         {loading ? (
                           <tr>
-                            <td colSpan="9" className="px-6 py-12 text-center">
+                            <td colSpan="10" className="px-6 py-12 text-center">
                               <div className="flex flex-col items-center justify-center">
                                 <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
                                 <p className="text-gray-600 font-medium">
-                                  Loading student data...
+                                  Loading students data...
                                 </p>
                                 <p className="text-sm text-gray-500 mt-1">
                                   Please wait while we fetch the records
@@ -784,7 +701,7 @@ const ShowStudents = () => {
                           </tr>
                         ) : students.length === 0 ? (
                           <tr>
-                            <td colSpan="9" className="px-6 py-8 text-center">
+                            <td colSpan="10" className="px-6 py-8 text-center">
                               <div className="flex flex-col items-center justify-center">
                                 <svg
                                   className="w-16 h-16 text-gray-400 mb-3"
@@ -797,7 +714,7 @@ const ShowStudents = () => {
                                     strokeLinejoin="round"
                                     strokeWidth="1.5"
                                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                  ></path>
+                                  />
                                 </svg>
                                 <h3 className="text-lg font-medium text-gray-700 mb-1">
                                   No students found
@@ -818,7 +735,7 @@ const ShowStudents = () => {
                                   courseFilter) && (
                                   <button
                                     onClick={handleResetFilters}
-                                    className="mt-3 px-4 py-2 bg-sky-100 text-sky-700 rounded-lg text-sm font-medium hover:bg-sky-200 transition"
+                                    className="mt-3 px-4 py-2 bg-sky-100 text-sky-700 rounded-lg text-sm font-medium hover:bg-sky-200 transition cursor-pointer"
                                   >
                                     Reset Filters
                                   </button>
@@ -827,14 +744,15 @@ const ShowStudents = () => {
                             </td>
                           </tr>
                         ) : (
-                          students.map((student) => (
+                          students.map((student, index) => (
                             <tr
                               key={`student-${student.id}`}
                               className="hover:bg-gray-50 transition"
                             >
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {student.id}
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700 font-bold">
+                                {(currentPage - 1) * perPage + index + 1}
                               </td>
+
                               <td className="px-6 py-4 whitespace-nowrap">
                                 {student.profile_picture ? (
                                   <>
@@ -921,7 +839,7 @@ const ShowStudents = () => {
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
-                                  className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                  className={`px-2 py-1 text-xs font-semibold rounded-full ${
                                     student.active_status === 1
                                       ? "bg-green-100 text-green-800"
                                       : student.active_status === 2
@@ -936,11 +854,11 @@ const ShowStudents = () => {
                                     : "Disapproved"}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold">
                                 <div className="flex justify-center space-x-2">
                                   <button
                                     onClick={() => handleApprove(student)}
-                                    className={`inline-flex items-center px-3 py-2 rounded-md text-xs font-medium ${
+                                    className={`inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold ${
                                       student.active_status === 1
                                         ? "bg-green-100 text-green-800 cursor-not-allowed"
                                         : "bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 cursor-pointer"
@@ -951,7 +869,7 @@ const ShowStudents = () => {
                                   </button>
                                   <button
                                     onClick={() => handleDisapprove(student)}
-                                    className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${
+                                    className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold ${
                                       student.active_status === 0
                                         ? "bg-red-100 text-red-800 cursor-not-allowed"
                                         : "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer transition"
@@ -963,7 +881,7 @@ const ShowStudents = () => {
 
                                   <button
                                     onClick={() => handleDelete(student)}
-                                    className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer"
+                                    className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer"
                                   >
                                     Remove
                                   </button>
@@ -974,6 +892,236 @@ const ShowStudents = () => {
                         )}
                       </tbody>
                     </table>
+                  </div>
+
+                  {/* Enhanced Pagination Controls */}
+                  <div
+                    className="mt-5 px-4 py-3 rounded-lg"
+                    style={{
+                      backgroundColor: "#D3D3D3",
+                      border: `1px solid ${colors.border}`,
+                    }}
+                  >
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-semibold">
+                      {/* Items Count */}
+                      <div className="flex items-center">
+                        <span className="text-md mr-2 text-gray-700">
+                          Rows per page:
+                        </span>
+                        <select
+                          value={perPage}
+                          onChange={(e) => {
+                            setPerPage(Number(e.target.value));
+                            setCurrentPage(1);
+                          }}
+                          className="cursor-pointer border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 transition-all"
+                          style={{
+                            borderColor: colors.border,
+                            backgroundColor: "white",
+                            color: colors.text,
+                            focusRing: colors.primary,
+                          }}
+                        >
+                          {[5, 10, 20, 50].map((size) => (
+                            <option
+                              key={size}
+                              value={size}
+                              style={{ color: colors.text }}
+                            >
+                              {size}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Page Info */}
+                      <div
+                        className="text-md"
+                        style={{ color: colors.lightText }}
+                      >
+                        <span className="font-semibold text-gray-700">
+                          {(currentPage - 1) * perPage + 1}-
+                          {Math.min(currentPage * perPage, totalItems)}
+                        </span>{" "}
+                        of{" "}
+                        <span className="font-semibold text-gray-700">
+                          {totalItems}
+                        </span>
+                      </div>
+
+                      {/* Page Navigation */}
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => setCurrentPage(1)}
+                          disabled={currentPage === 1}
+                          className={`p-2 rounded-md ${
+                            currentPage === 1
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-gray-100"
+                          }`}
+                          style={{ color: colors.primary }}
+                          aria-label="First page"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                            />
+                          </svg>
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            setCurrentPage((prev) => Math.max(prev - 1, 1))
+                          }
+                          disabled={currentPage === 1}
+                          className={`p-2 rounded-md ${
+                            currentPage === 1
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-gray-100"
+                          }`}
+                          style={{ color: colors.primary }}
+                          aria-label="Previous page"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M15 19l-7-7 7-7"
+                            />
+                          </svg>
+                        </button>
+
+                        {/* Page Numbers */}
+                        <div className="flex space-x-1 mx-2">
+                          {Array.from(
+                            { length: Math.min(5, totalPages) },
+                            (_, i) => {
+                              let pageNum;
+                              if (totalPages <= 5) {
+                                pageNum = i + 1;
+                              } else if (currentPage <= 3) {
+                                pageNum = i + 1;
+                              } else if (currentPage >= totalPages - 2) {
+                                pageNum = totalPages - 4 + i;
+                              } else {
+                                pageNum = currentPage - 2 + i;
+                              }
+
+                              return (
+                                <button
+                                  key={pageNum}
+                                  onClick={() => setCurrentPage(pageNum)}
+                                  className={`w-8 h-8 rounded-md text-sm flex items-center justify-center transition-colors ${
+                                    currentPage === pageNum
+                                      ? "text-white"
+                                      : "hover:bg-gray-100"
+                                  }`}
+                                  style={{
+                                    backgroundColor:
+                                      currentPage === pageNum
+                                        ? colors.primary
+                                        : "transparent",
+                                    color:
+                                      currentPage === pageNum
+                                        ? "white"
+                                        : colors.text,
+                                  }}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            }
+                          )}
+                          {totalPages > 5 && currentPage < totalPages - 2 && (
+                            <span
+                              className="px-2 flex items-end"
+                              style={{ color: colors.lightText }}
+                            >
+                              ...
+                            </span>
+                          )}
+                          {totalPages > 5 && currentPage < totalPages - 2 && (
+                            <button
+                              onClick={() => setCurrentPage(totalPages)}
+                              className={`w-8 h-8 rounded-md text-sm flex items-center justify-center hover:bg-gray-100`}
+                              style={{ color: colors.text }}
+                            >
+                              {totalPages}
+                            </button>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, totalPages)
+                            )
+                          }
+                          disabled={currentPage === totalPages}
+                          className={`p-2 rounded-md ${
+                            currentPage === totalPages
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-gray-100"
+                          }`}
+                          style={{ color: colors.primary }}
+                          aria-label="Next page"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+
+                        <button
+                          onClick={() => setCurrentPage(totalPages)}
+                          disabled={currentPage === totalPages}
+                          className={`p-2 rounded-md ${
+                            currentPage === totalPages
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-gray-100"
+                          }`}
+                          style={{ color: colors.primary }}
+                          aria-label="Last page"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
