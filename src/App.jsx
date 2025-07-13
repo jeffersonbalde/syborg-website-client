@@ -29,6 +29,7 @@ import ShowStudents from "./pages/admins/Students/ShowStudents";
 import StudentAttendance from "./pages/students/StudentAttendance";
 import CreateEvent from "./pages/admins/Events/CreateEvent";
 import ShowEvents from "./pages/admins/Events/ShowEvents";
+import TakeAttendance from "./pages/admins/Events/TakeAttendance";
 
 const App = () => {
   return (
@@ -110,6 +111,17 @@ const App = () => {
                 <PrivateRoute allowedRoles={["admin"]}>
                   <AdminPageNavbar>
                     <ShowEvents />
+                  </AdminPageNavbar>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/admin/events/:eventId/attendance"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <AdminPageNavbar>
+                    <TakeAttendance />
                   </AdminPageNavbar>
                 </PrivateRoute>
               }

@@ -283,11 +283,14 @@ const ShowStudents = () => {
     });
   };
 
+  // This handles filter changes with debounce
   useEffect(() => {
     const debouncedFetch = debounce(() => {
       fetchStudents();
     }, 500);
 
+    // Reset to first page when filters change (except currentPage and perPage)
+    setCurrentPage(1);
     debouncedFetch();
 
     return () => {
@@ -295,6 +298,7 @@ const ShowStudents = () => {
     };
   }, [search, genderFilter, yearFilter, statusFilter, courseFilter]);
 
+  // This handles pagination changes
   useEffect(() => {
     fetchStudents();
   }, [currentPage, perPage]);
@@ -307,6 +311,8 @@ const ShowStudents = () => {
     setYearFilter("");
     setStatusFilter("");
     setCourseFilter("");
+    setCurrentPage(1); // Reset to first page
+    setPerPage(10); // Reset to default page size
   };
 
   return (
@@ -331,7 +337,7 @@ const ShowStudents = () => {
               >
                 <div className="p-4">
                   <div
-                    className="sticky top-0 z-10 p-4 shadow-sm mb-5 bg-gray-700 rounded-xl"
+                    className="sticky top-0 z-10 p-4 shadow-sm mb-4 bg-gray-700 rounded-xl"
                     style={{
                       borderBottom: `1px solid ${colors.border}`,
                     }}
@@ -406,7 +412,7 @@ const ShowStudents = () => {
 
                   {/* Count Display */}
                   <div
-                    className="rounded-xl p-4 mb-5 shadow-sm"
+                    className="rounded-xl p-4 mb-4 shadow-sm"
                     style={{
                       backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
@@ -481,7 +487,7 @@ const ShowStudents = () => {
 
                   {/* FILTER BAR */}
                   <div
-                    className="rounded-xl p-4 mb-5 shadow-sm"
+                    className="rounded-xl px-4 py-4 pt-3 mb-4 shadow-sm"
                     style={{
                       backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
@@ -601,7 +607,10 @@ const ShowStudents = () => {
                           placeholder="Search by name or EDP number..."
                           value={search}
                           disabled={loading}
-                          onChange={(e) => setSearch(e.target.value)}
+                          onChange={(e) => {
+                            setSearch(e.target.value);
+                            setCurrentPage(1); // Reset to first page when searching
+                          }}
                           className="w-full rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 placeholder:text-sm shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                           style={{
                             border: `1px solid ${colors.border}`,
@@ -655,7 +664,7 @@ const ShowStudents = () => {
                   </div>
 
                   <div
-                    className="overflow-x-auto rounded-xl shadow-sm"
+                    className="overflow-x-auto rounded-xl shadow-sm "
                     style={{ border: `1px solid ${colors.border}` }}
                   >
                     <table className="min-w-full divide-y divide-gray-200">
@@ -690,7 +699,7 @@ const ShowStudents = () => {
                             <td colSpan="10" className="px-6 py-12 text-center">
                               <div className="flex flex-col items-center justify-center">
                                 <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                <p className="text-gray-600 font-medium">
+                                <p className="text-gray-600 font-semibold">
                                   Loading students data...
                                 </p>
                                 <p className="text-sm text-gray-500 mt-1">
@@ -716,7 +725,7 @@ const ShowStudents = () => {
                                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                   />
                                 </svg>
-                                <h3 className="text-lg font-medium text-gray-700 mb-1">
+                                <h3 className="text-lg font-semibold text-gray-700 mb-1">
                                   No students found
                                 </h3>
                                 <p className="text-gray-500 max-w-md">
@@ -896,7 +905,7 @@ const ShowStudents = () => {
 
                   {/* Enhanced Pagination Controls */}
                   <div
-                    className="mt-5 px-4 py-3 rounded-lg"
+                    className="mt-4 px-4 py-3 rounded-lg"
                     style={{
                       backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
@@ -910,11 +919,15 @@ const ShowStudents = () => {
                         </span>
                         <select
                           value={perPage}
+                          disabled={loading}
                           onChange={(e) => {
-                            setPerPage(Number(e.target.value));
-                            setCurrentPage(1);
+                            const newPerPage = Number(e.target.value);
+                            setPerPage(newPerPage);
+                            setCurrentPage(1); // Always reset to first page when changing page size
+                            // Trigger immediate fetch by updating a state that's in the dependency array
+                            setSearch((prev) => prev + (prev ? " " : " ")); // Force re-fetch
                           }}
-                          className="cursor-pointer border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 transition-all"
+                          className="cursor-pointer cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 transition-all"
                           style={{
                             borderColor: colors.border,
                             backgroundColor: "white",
@@ -950,14 +963,14 @@ const ShowStudents = () => {
                       </div>
 
                       {/* Page Navigation */}
-                      <div className="flex items-center space-x-1">
+                      <div className="cursor-pointer flex items-center space-x-1">
                         <button
                           onClick={() => setCurrentPage(1)}
                           disabled={currentPage === 1}
                           className={`p-2 rounded-md ${
                             currentPage === 1
                               ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-gray-100"
+                              : "hover:bg-gray-100 cursor-pointer"
                           }`}
                           style={{ color: colors.primary }}
                           aria-label="First page"
@@ -985,7 +998,7 @@ const ShowStudents = () => {
                           className={`p-2 rounded-md ${
                             currentPage === 1
                               ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-gray-100"
+                              : "hover:bg-gray-100 cursor-pointer"
                           }`}
                           style={{ color: colors.primary }}
                           aria-label="Previous page"
@@ -1075,7 +1088,7 @@ const ShowStudents = () => {
                           className={`p-2 rounded-md ${
                             currentPage === totalPages
                               ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-gray-100"
+                              : "hover:bg-gray-100 cursor-pointer"
                           }`}
                           style={{ color: colors.primary }}
                           aria-label="Next page"
@@ -1101,7 +1114,7 @@ const ShowStudents = () => {
                           className={`p-2 rounded-md ${
                             currentPage === totalPages
                               ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-gray-100"
+                              : "hover:bg-gray-100 cursor-pointer"
                           }`}
                           style={{ color: colors.primary }}
                           aria-label="Last page"

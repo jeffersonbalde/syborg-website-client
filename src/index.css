@@ -44,8 +44,68 @@ body {
   }
 }
 
+
+
+
 .animate-shimmer {
   animation: shimmer 1.5s infinite linear;
   background-size: 200% 100%;
 }
 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+
+
+
+
+.btn-primary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #D30203;
+  color: white;
+  box-shadow: 0 2px 4px rgba(211, 2, 3, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: #D30203; /* Slightly darker red */
+}
+
+.btn-primary:disabled {
+  background-color: #E0E0E0;
+  color: #777777;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-primary .btn-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+.btn-primary .hover-overlay {
+  position: absolute;
+  inset: 0;
+  transition: all 0.3s ease;
+  background-color: rgba(0,0,0,0);
+}
+
+.btn-primary:hover .hover-overlay {
+  background-color: rgba(0,0,0,0.1);
+}

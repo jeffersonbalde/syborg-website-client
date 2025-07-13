@@ -311,7 +311,7 @@ const AdminDashboard = () => {
                     <div className="flex justify-center items-center py-12">
                       <div className="flex flex-col items-center">
                         <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                        <p className="text-gray-600 font-medium">
+                        <p className="text-gray-600 font-semibold">
                           Fetching dashboard data...
                         </p>
                         <p className="text-sm text-gray-500 mt-1">

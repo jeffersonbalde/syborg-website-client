@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate, NavLink } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import syborg_logo from "../assets/images/syborg_logo.png";
 import red_lions from "../assets/images/red_lions.jpg";
@@ -14,8 +14,6 @@ import {
   FiChevronRight,
   FiLayout,
   FiImage,
-  FiList,
-  FiUserCheck,
 } from "react-icons/fi";
 
 import { useAuth } from "../context/AuthContext";
@@ -121,6 +119,7 @@ const AdminSidebar = () => {
     },
     {
       id: "events",
+      // path: "/admin/events",
       icon: <FiCalendar size={20} />,
       label: "Manage Events",
       type: "group",
@@ -128,56 +127,16 @@ const AdminSidebar = () => {
         {
           path: "/admin/events",
           label: "Events List",
-          icon: <FiList size={16} />,
+          icon: <FiCalendar size={16} />,
         },
         {
           path: "/admin/events/:eventId/attendance",
           label: "Take Attendance",
-          icon: <FiUserCheck size={16} />,
+          icon: <FiCalendar size={16} />,
         },
       ],
     },
   ];
-
-  // Improved isActive check for nested routes
-  const isActiveRoute = (path) => {
-    // Handle dynamic routes (like :eventId)
-    if (path.includes(":eventId")) {
-      const pathPattern = path.replace(":eventId", "[^/]+");
-      const regex = new RegExp(`^${pathPattern}$`);
-      return regex.test(location.pathname);
-    }
-
-    // Exact match for single items
-    if (location.pathname === path) return true;
-
-    // For nested routes, check if current path starts with the parent path
-    if (path && location.pathname.startsWith(path)) {
-      return true;
-    }
-    return false;
-  };
-
-  // Improved isGroupActive to handle nested routes better
-  const isGroupActive = (children) => {
-    return children.some((child) => {
-      // Handle dynamic routes (like :eventId)
-      if (child.path.includes(":eventId")) {
-        const pathPattern = child.path.replace(":eventId", "[^/]+");
-        const regex = new RegExp(`^${pathPattern}$`);
-        return regex.test(location.pathname);
-      }
-
-      // Exact match
-      if (location.pathname === child.path) return true;
-
-      // Starts with match (for nested routes)
-      if (child.path && location.pathname.startsWith(child.path)) {
-        return true;
-      }
-      return false;
-    });
-  };
 
   const sidebarVariants = {
     open: { x: 0 },
@@ -187,6 +146,15 @@ const AdminSidebar = () => {
   const overlayVariants = {
     open: { opacity: 1, display: "block" },
     closed: { opacity: 0, transitionEnd: { display: "none" } },
+  };
+
+  const isGroupActive = (children) => {
+    return children.some((child) => {
+      if (child.path === location.pathname) return true;
+      // For nested paths (e.g., /admin/students/123)
+      if (child.path && location.pathname.startsWith(child.path)) return true;
+      return false;
+    });
   };
 
   return (
@@ -330,57 +298,50 @@ const AdminSidebar = () => {
                 )}
               </div>
             </div>
-          </div>{" "}
+          </div>
+
           {/* Sidebar Content */}
           <div className="flex-1 overflow-y-auto p-4">
             <nav className="space-y-1">
               {navItems.map((item) => {
                 if (item.type === "single") {
                   return (
-                    <NavLink
+                    <Link
                       key={item.path}
                       to={item.path}
-                      className={({ isActive }) =>
-                        `flex items-center p-2 rounded-lg transition-all duration-200 group ${
-                          isActive
-                            ? "bg-red-900 bg-opacity-20 text-white"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                        }`
-                      }
+                      className={`flex items-center p-3 rounded-lg transition-all duration-200 group ${
+                        location.pathname === item.path
+                          ? "bg-red-900 bg-opacity-50"
+                          : "hover:bg-gray-700"
+                      }`}
                       onClick={() => isMobile && setIsOpen(false)}
-                      // Remove the end prop for attendance route
-                      end={!item.path.includes("attendance")}
                     >
-                      {({ isActive }) => (
-                        <>
-                          <span
-                            className={`mr-3 ${
-                              isActive
-                                ? "text-white"
-                                : "text-gray-400 group-hover:text-white"
-                            }`}
-                          >
-                            {item.icon}
-                          </span>
-                          <span
-                            className={`font-medium ${
-                              isActive
-                                ? "text-white"
-                                : "text-gray-300 group-hover:text-white"
-                            }`}
-                          >
-                            {item.label}
-                          </span>
-                        </>
-                      )}
-                    </NavLink>
+                      <span
+                        className={`mr-3 ${
+                          location.pathname === item.path
+                            ? "text-white"
+                            : "text-gray-400 group-hover:text-white"
+                        }`}
+                      >
+                        {item.icon}
+                      </span>
+                      <span
+                        className={`font-medium ${
+                          location.pathname === item.path
+                            ? "text-white"
+                            : "text-gray-300 group-hover:text-white"
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                    </Link>
                   );
                 } else if (item.type === "group") {
                   const isActive = isGroupActive(item.children);
                   const isExpanded =
                     expandedItems[item.id] !== undefined
                       ? expandedItems[item.id]
-                      : isActive;
+                      : isActive; // Auto-expand if active
 
                   return (
                     <div key={item.id} className="space-y-1">
@@ -432,28 +393,24 @@ const AdminSidebar = () => {
                           >
                             <div className="space-y-1">
                               {item.children.map((child) => (
-                                <NavLink
+                                <Link
                                   key={child.path}
                                   to={child.path}
-                                  className={({ isActive }) =>
-                                    `flex items-center p-2 rounded-lg transition-all duration-200 group ${
-                                      isActive
-                                        ? "bg-red-900 bg-opacity-20 text-white"
-                                        : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                                    }`
-                                  }
+                                  className={`flex items-center p-2 rounded-lg transition-all duration-200 group ${
+                                    location.pathname === child.path ||
+                                    location.pathname.startsWith(
+                                      child.path + "/"
+                                    )
+                                      ? "bg-red-900 bg-opacity-20 text-white"
+                                      : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                                  }`}
                                   onClick={() => isMobile && setIsOpen(false)}
-                                  end={!child.path.includes("attendance")} // Don't use exact for attendance sub-routes
                                 >
-                                  {({ isActive }) => (
-                                    <>
-                                      <span className="mr-3">{child.icon}</span>
-                                      <span className="font-medium">
-                                        {child.label}
-                                      </span>
-                                    </>
-                                  )}
-                                </NavLink>
+                                  <span className="mr-3">{child.icon}</span>
+                                  <span className="font-medium">
+                                    {child.label}
+                                  </span>
+                                </Link>
                               ))}
                             </div>
                           </motion.div>
@@ -466,6 +423,7 @@ const AdminSidebar = () => {
               })}
             </nav>
           </div>
+
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-gray-700 space-y-2">
             <button
@@ -483,11 +441,11 @@ const AdminSidebar = () => {
                   confirmButtonColor: colors.primary,
                   cancelButtonColor: colors.lightText,
                   backdrop: `
-                    rgba(${hexToRgb(colors.dark)},0.7)
-                    url("/images/loading.gif")
-                    center top
-                    no-repeat
-                  `,
+          rgba(${hexToRgb(colors.dark)},0.7)
+          url("/images/loading.gif")
+          center top
+          no-repeat
+        `,
                 });
 
                 if (result.isConfirmed) {

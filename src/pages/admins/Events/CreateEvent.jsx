@@ -73,11 +73,11 @@ const CreateEvent = ({ onClose, onSuccess }) => {
         iconColor: colors.info,
         backdrop: true,
         backdrop: `
-          rgba(0,0,0,0.7)
-          url("/images/loading.gif")
-          center top
-          no-repeat
-        `,
+      rgba(0,0,0,0.7)
+      url("/images/loading.gif")
+      center top
+      no-repeat
+    `,
         didOpen: () => {
           document.body.style.overflow = "auto";
         },
@@ -106,12 +106,13 @@ const CreateEvent = ({ onClose, onSuccess }) => {
         },
       });
 
+      // No need for conversion - time inputs already provide 24-hour format
       const eventData = {
         title: data.title,
         location: data.location,
-        event_date: `${data.event_date}T00:00:00`,
-        start_time: `${data.event_date}T${data.start_time}:00`,
-        end_time: `${data.event_date}T${data.end_time}:00`,
+        event_date: data.event_date, // Just the date part
+        start_time: `${data.event_date} ${data.start_time}:00`, // Full datetime
+        end_time: `${data.event_date} ${data.end_time}:00`,
       };
 
       const response = await fetch(
@@ -128,15 +129,26 @@ const CreateEvent = ({ onClose, onSuccess }) => {
 
       const result = await response.json();
       Swal.close();
+      setLoading(false);
 
       if (!response.ok) {
+        if (response.status === 422 && result.errors) {
+          if (result.errors.title) {
+            throw new Error(result.errors.title[0]);
+          }
+          const firstError = Object.values(result.errors)[0][0];
+          throw new Error(firstError);
+        }
         throw new Error(result.message || "Failed to create event");
       }
 
       toast.success("Event created successfully!");
       onSuccess();
     } catch (error) {
-      toast.error(error.message || "An error occurred");
+      toast.error(error.message);
+      if (error.message.includes("already exists")) {
+        setFocus("title");
+      }
       console.error("Error:", error);
     } finally {
       setLoading(false);
@@ -236,7 +248,7 @@ const CreateEvent = ({ onClose, onSuccess }) => {
             id="title"
             type="text"
             className={`bg-white w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 font-semibold ${
-              errors.title
+              errors.title || errors?.message?.includes("already exists") // Add this condition
                 ? "border-red-500 focus:ring-red-500"
                 : `border-gray-300 focus:ring-${colors.primary}`
             }`}
@@ -413,14 +425,14 @@ const CreateEvent = ({ onClose, onSuccess }) => {
                 onClick={onClose}
                 disabled={loading}
                 className={`
-                  px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 
-                  transition-all duration-200 border
-                  ${
-                    loading
-                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                      : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 hover:shadow-sm cursor-pointer"
-                  }
-                `}
+                    px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 
+                    transition-all duration-200 border
+                    ${
+                      loading
+                        ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                        : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 hover:shadow-sm cursor-pointer"
+                    }
+                  `}
               >
                 Cancel
               </button>
@@ -429,14 +441,14 @@ const CreateEvent = ({ onClose, onSuccess }) => {
                 type="submit"
                 disabled={loading}
                 className={`
-                  px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 
-                  transition-all duration-200 shadow-md
-                  ${
-                    loading
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : `bg-${colors.primary} text-white hover:shadow-lg cursor-pointer`
-                  }
-                `}
+                    px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 
+                    transition-all duration-200 shadow-md
+                    ${
+                      loading
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : `bg-${colors.primary} text-white hover:shadow-lg cursor-pointer`
+                    }
+                  `}
                 style={{
                   backgroundColor: loading ? undefined : colors.primary,
                   boxShadow: loading

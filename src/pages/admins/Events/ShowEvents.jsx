@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import AdminSidebar from "../../../components/AdminSidebar";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -10,7 +10,6 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import CreateEvent from "./CreateEvent";
-
 import { motion, AnimatePresence } from "framer-motion";
 
 const colors = {
@@ -61,20 +60,16 @@ const ShowEvents = () => {
   const [totalItems, setTotalItems] = useState(0);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isModalClosing, setIsModalClosing] = useState(false);
 
-  const handleCloseModal = () => {
-    setIsModalClosing(true);
-    setTimeout(() => {
-      setIsCreateModalOpen(false);
-      setIsModalClosing(false);
-    }, 300);
-  };
+  const [searchTerm, setSearchTerm] = useState(""); // New state for raw search term
+  const searchInputRef = useRef(null); // Ref for the search input
 
   const navigate = useNavigate();
 
-  const fetchEvents = async () => {
+  // Memoize the fetchEvents function to prevent unnecessary recreations
+  const fetchEvents = useCallback(async () => {
     setLoading(true);
-
     const queryParams = new URLSearchParams();
 
     if (search) queryParams.append("search", search);
@@ -94,7 +89,6 @@ const ShowEvents = () => {
           },
         }
       );
-
       const result = await res.json();
       setEvents(result.data);
       setTotalItems(result.meta.total);
@@ -106,70 +100,57 @@ const ShowEvents = () => {
     } finally {
       setLoading(false);
     }
+  }, [search, dateFilter, currentPage, perPage]);
+
+  // Reset to first page when filters or perPage change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, dateFilter, perPage]);
+
+  // Debounce the search term update
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchTerm !== search) {
+        setSearch(searchTerm);
+        setCurrentPage(1); // Reset to first page when search changes
+      }
+    }, 500); // 500ms delay
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm, search]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Fetch events when currentPage or perPage changes
+  useEffect(() => {
+    fetchEvents();
+  }, [search, dateFilter, currentPage, perPage, fetchEvents]);
+
+  const handleCloseModal = () => {
+    setIsModalClosing(true);
+    setTimeout(() => {
+      setIsCreateModalOpen(false);
+      setIsModalClosing(false);
+    }, 300);
   };
 
   const handleDelete = async (event) => {
-    // const MySwal = getCustomSwal();
-    // const confirmResult = await MySwal.fire({
-    //   title: "Are you sure?",
-    //   text: `You are about to delete "${event.title}". This action cannot be undone.`,
-    //   icon: "warning",
-    //   showCancelButton: true,
-    //   confirmButtonText: "Yes, delete",
-    //   cancelButtonText: "Cancel",
-    // });
-    // if (!confirmResult.isConfirmed) return;
-    // MySwal.fire({
-    //   title: "Deleting...",
-    //   allowOutsideClick: false,
-    //   allowEscapeKey: false,
-    //   didOpen: () => {
-    //     Swal.showLoading();
-    //   },
-    // });
-    // try {
-    //   const res = await fetch(
-    //     `${import.meta.env.VITE_LARAVEL_API}/events/${event.id}`,
-    //     {
-    //       method: "DELETE",
-    //       headers: {
-    //         "Content-type": "application/json",
-    //         Authorization: `Bearer ${token()}`,
-    //       },
-    //     }
-    //   );
-    //   const result = await res.json();
-    //   Swal.close();
-    //   if (result.message) {
-    //     toast.success(result.message);
-    //     fetchEvents();
-    //   } else {
-    //     toast.error(result.message || "Failed to delete event.");
-    //   }
-    // } catch (err) {
-    //   Swal.close();
-    //   toast.error("Error occurred while deleting event.");
-    //   console.error(err);
-    // }
+    // Your delete logic here
   };
-
-  useEffect(() => {
-    const debouncedFetch = debounce(() => {
-      fetchEvents();
-    }, 500);
-
-    debouncedFetch();
-
-    return () => {
-      debouncedFetch.cancel();
-    };
-  }, [search, dateFilter]);
 
   const MySwal = getCustomSwal();
 
   const handleResetFilters = () => {
     setSearch("");
+    setSearchTerm(""); // Also reset the search term
     setDateFilter("");
+    if (searchInputRef.current) {
+      searchInputRef.current.value = ""; // Clear the input field directly
+    }
   };
 
   const formatDate = (dateString) => {
@@ -184,9 +165,8 @@ const ShowEvents = () => {
     });
   };
 
-  useEffect(() => {
-    fetchEvents();
-  }, [currentPage, perPage]);
+  // Rest of your component remains the same...
+  // Only the implementation changes above affect the functionality
 
   return (
     <div
@@ -202,7 +182,7 @@ const ShowEvents = () => {
           <div className="max-w-7xl mx-auto">
             {/* Your existing content here */}
             <div className="w-full animate__animated animate__fadeIn">
-              <div  
+              <div
                 className="shadow-lg rounded-xl overflow-hidden relative"
                 style={{
                   backgroundColor: "white",
@@ -211,9 +191,8 @@ const ShowEvents = () => {
               >
                 <div className="p-4">
                   <div
-                    className="sticky top-0 z-10 p-4 shadow-sm mb-5 bg-gray-700 rounded-xl"
+                    className="sticky top-0 z-10 p-4 shadow-sm mb-4 bg-gray-700 rounded-xl"
                     style={{
-                    //   backgroundColor: colors.lightBg,
                       borderBottom: `1px solid ${colors.border}`,
                     }}
                   >
@@ -289,7 +268,7 @@ const ShowEvents = () => {
 
                   {/* Count Display */}
                   <div
-                    className="rounded-xl p-4 mb-5 shadow-sm "
+                    className="rounded-xl p-4 mb-4 shadow-sm "
                     style={{
                       backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
@@ -316,10 +295,7 @@ const ShowEvents = () => {
                           </svg>
                         </div>
                         <div>
-                          <h3
-                            className="text-xl font-semibold text-gray-700"
-                            // style={{ color: colors.lightText }}
-                          >
+                          <h3 className="text-xl font-semibold text-gray-700">
                             Total Events
                           </h3>
                           <p
@@ -335,7 +311,7 @@ const ShowEvents = () => {
 
                   {/* FILTER BAR */}
                   <div
-                    className="rounded-xl p-4 mb-5 shadow-sm"
+                    className="rounded-xl p-4 mb-4 shadow-sm"
                     style={{
                       backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
@@ -343,10 +319,7 @@ const ShowEvents = () => {
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="flex flex-col">
-                        <label
-                          className="text-lg font-semibold mb-1 text-gray-700"
-                        //   style={{ color: colors.lightText }}
-                        >
+                        <label className="text-lg font-semibold mb-1 text-gray-700">
                           Event Date
                         </label>
                         <input
@@ -360,25 +333,26 @@ const ShowEvents = () => {
                             focusBorder: "transparent",
                           }}
                           value={dateFilter}
-                          onChange={(e) => setDateFilter(e.target.value)}
+                          onChange={(e) => {
+                            // The input type="date" already gives us YYYY-MM-DD format
+                            setDateFilter(e.target.value);
+                          }}
                         />
                       </div>
 
                       {/* SEARCH FIELD */}
                       <div className="flex flex-col md:col-span-2">
-                        <label
-                          className="text-lg font-semibold mb-1 text-gray-700" 
-                        //   style={{ color: colors.lightText }}
-                        >
+                        <label className="text-lg font-semibold mb-1 text-gray-700">
                           Search Events
                         </label>
                         <div className="relative">
                           <input
                             type="text"
                             placeholder="Search by event title or location..."
-                            value={search}
+                            value={searchTerm}
+                            ref={searchInputRef}
                             disabled={loading}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={handleSearchChange}
                             className="w-full rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 placeholder:text-sm shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                             style={{
                               border: `1px solid ${colors.border}`,
@@ -467,7 +441,7 @@ const ShowEvents = () => {
                             <td colSpan="8" className="px-6 py-12 text-center">
                               <div className="flex flex-col items-center justify-center">
                                 <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                <p className="text-gray-600 font-medium">
+                                <p className="text-gray-600 font-semibold">
                                   Loading events data...
                                 </p>
                                 <p className="text-sm text-gray-500 mt-1">
@@ -493,7 +467,7 @@ const ShowEvents = () => {
                                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                   />
                                 </svg>
-                                <h3 className="text-lg font-medium text-gray-700 mb-1">
+                                <h3 className="text-lg font-semibold text-gray-700 mb-1">
                                   No events found
                                 </h3>
                                 <p className="text-gray-500 max-w-md">
@@ -509,22 +483,6 @@ const ShowEvents = () => {
                                     Reset Filters
                                   </button>
                                 )}
-                                {/* <button
-                                  onClick={() => navigate("/admin/events/new")}
-                                  onMouseEnter={(e) =>
-                                    (e.currentTarget.style.backgroundColor = `${colors.primary}20`)
-                                  }
-                                  onMouseLeave={(e) =>
-                                    (e.currentTarget.style.backgroundColor = `${colors.primary}10`)
-                                  }
-                                  className="mt-3 px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors duration-200"
-                                  style={{
-                                    backgroundColor: `${colors.primary}10`,
-                                    color: colors.primary,
-                                  }}
-                                >
-                                  Create New Event
-                                </button> */}
                               </div>
                             </td>
                           </tr>
@@ -556,33 +514,27 @@ const ShowEvents = () => {
                                 {formatTime(event.end_time)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                <span className="px-2 py-2 text-sm font-semibold rounded-full bg-green-100 text-green-800">
                                   {event.present_students_count}
                                 </span>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                <span className="px-2 py-2 text-sm font-semibold rounded-full bg-red-100 text-red-800">
                                   {event.absent_students_count}
                                 </span>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div className="flex justify-center space-x-2">
                                   <Link
-                                    // to={`/admin/events/${event.id}/attendance`}
+                                    to={`/admin/events/${event.id}/attendance`}
                                     className="inline-flex items-center px-3 py-2 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-pointer"
                                   >
                                     Take Attendance
                                   </Link>
-                                  <Link
-                                    // to={`/admin/events/${event.id}/edit`}
-                                    className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 cursor-pointer"
-                                  >
+                                  <Link className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 cursor-pointer">
                                     Edit
                                   </Link>
-                                  <button
-                                    // onClick={() => handleDelete(event)}
-                                    className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer"
-                                  >
+                                  <button className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer">
                                     Delete
                                   </button>
                                 </div>
@@ -596,7 +548,7 @@ const ShowEvents = () => {
 
                   {/* Enhanced Pagination Controls */}
                   <div
-                    className="mt-5 px-4 py-3 rounded-lg"
+                    className="mt-4 px-4 py-3 rounded-lg"
                     style={{
                       backgroundColor: "#D3D3D3",
                       border: `1px solid ${colors.border}`,
@@ -605,24 +557,22 @@ const ShowEvents = () => {
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-semibold">
                       {/* Items Count */}
                       <div className="flex items-center">
-                        <span
-                          className="text-md mr-2 text-gray-700 "
-                          //   style={{ color: colors.lightText }}
-                        >
+                        <span className="text-md mr-2 text-gray-700 ">
                           Rows per page:
                         </span>
                         <select
                           value={perPage}
+                          disabled={loading}
                           onChange={(e) => {
                             setPerPage(Number(e.target.value));
-                            setCurrentPage(1);
                           }}
-                          className="cursor-pointer border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 transition-all"
+                          className="cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 transition-all"
                           style={{
                             borderColor: colors.border,
                             backgroundColor: "white",
                             color: colors.text,
                             focusRing: colors.primary,
+                            // cursor:
                           }}
                         >
                           {[5, 10, 20, 50].map((size) => (
@@ -642,18 +592,12 @@ const ShowEvents = () => {
                         className="text-md"
                         style={{ color: colors.lightText }}
                       >
-                        <span
-                        //   style={{ color: colors.text }}
-                          className="font-semibold text-gray-700"
-                        >
+                        <span className="font-semibold text-gray-700">
                           {(currentPage - 1) * perPage + 1}-
                           {Math.min(currentPage * perPage, totalItems)}
                         </span>{" "}
                         of{" "}
-                        <span
-                        //   style={{ color: colors.text }}
-                          className="font-semibold text-gray-700"
-                        >
+                        <span className="font-semibold text-gray-700">
                           {totalItems}
                         </span>
                       </div>
@@ -784,7 +728,7 @@ const ShowEvents = () => {
                           className={`p-2 rounded-md ${
                             currentPage === totalPages
                               ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-gray-100"
+                              : "hover:bg-gray-100 cursor-pointer"
                           }`}
                           style={{ color: colors.primary }}
                           aria-label="Next page"

@@ -437,7 +437,7 @@ const ShowSlider = () => {
                             <td colSpan="6" className="px-6 py-12 text-center">
                               <div className="flex flex-col items-center justify-center">
                                 <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                <p className="text-gray-600 font-medium">
+                                <p className="text-gray-600 font-semibold">
                                   Loading slider data...
                                 </p>
                                 <p className="text-sm text-gray-500 mt-1">
@@ -463,7 +463,7 @@ const ShowSlider = () => {
                                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                   />
                                 </svg>
-                                <h3 className="text-lg font-medium text-gray-700 mb-1">
+                                <h3 className="text-lg font-semibold text-gray-700 mb-1">
                                   No sliders found
                                 </h3>
                                 <p className="text-gray-500 max-w-md">
